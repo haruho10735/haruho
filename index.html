@@ -2,21 +2,25 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>eFootball風ガチャ</title>
+<title>eFootball風 本格ガチャ</title>
 
 <style>
 
 body{
 font-family:sans-serif;
-background:radial-gradient(circle,#001a40,#000814);
+background:radial-gradient(circle,#00122b,#000);
 color:white;
 text-align:center;
 padding:20px;
 }
 
+h1{
+margin-bottom:10px;
+}
+
 button{
 padding:12px 25px;
-margin:10px;
+margin:8px;
 font-size:18px;
 border:none;
 border-radius:8px;
@@ -26,53 +30,80 @@ cursor:pointer;
 #single{background:#ffd700;color:black;}
 #ten{background:#00e5ff;color:black;}
 
-#animation{
+#pack{
+width:200px;
+height:260px;
 margin:30px auto;
-width:120px;
-height:120px;
-border-radius:50%;
-border:10px solid #1e90ff;
-border-top:10px solid white;
+background:linear-gradient(135deg,#1e3c72,#2a5298);
+border-radius:10px;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:22px;
+transition:0.6s;
+}
+
+.open{
+transform:scale(1.2) rotateY(180deg);
+}
+
+#tunnel{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:linear-gradient(90deg,red,orange,yellow,green,cyan,blue,purple);
+background-size:400%;
+animation:rainbow 2s linear infinite;
 display:none;
+z-index:5;
 }
 
-.spin{
-animation:spin 1s linear infinite;
-}
-
-@keyframes spin{
-0%{transform:rotate(0deg)}
-100%{transform:rotate(360deg)}
+@keyframes rainbow{
+0%{background-position:0%}
+100%{background-position:400%}
 }
 
 .card{
-margin:20px auto;
 width:260px;
-height:320px;
+height:340px;
+margin:20px auto;
 border-radius:15px;
-padding:20px;
-box-shadow:0 10px 25px rgba(0,0,0,0.6);
+overflow:hidden;
+box-shadow:0 10px 30px rgba(0,0,0,0.7);
 display:none;
+background:#111;
+}
+
+.card img{
+width:100%;
+height:200px;
+object-fit:cover;
+}
+
+.cardInfo{
+padding:10px;
 }
 
 .star5{
-background:linear-gradient(135deg,gold,orange,red);
+border:4px solid gold;
 }
 
 .star4{
-background:linear-gradient(135deg,#4fc3f7,#1976d2);
+border:4px solid #29b6f6;
 }
 
 .star3{
-background:linear-gradient(135deg,#b0bec5,#78909c);
+border:4px solid silver;
 }
 
 #collection{
-margin-top:30px;
+margin-top:20px;
 display:flex;
 flex-wrap:wrap;
 justify-content:center;
-gap:8px;
+gap:6px;
 }
 
 .playerBox{
@@ -80,6 +111,17 @@ background:#111;
 padding:6px 10px;
 border-radius:6px;
 font-size:13px;
+}
+
+table{
+margin:auto;
+margin-top:20px;
+border-collapse:collapse;
+}
+
+td,th{
+border:1px solid #555;
+padding:6px 12px;
 }
 
 </style>
@@ -92,189 +134,256 @@ font-size:13px;
 <button id="single">1回ガチャ</button>
 <button id="ten">10連ガチャ</button>
 
-<div id="animation"></div>
+<div id="pack">PACK</div>
+
+<div id="tunnel"></div>
 
 <div id="card" class="card">
+<img id="face">
+<div class="cardInfo">
 <h2 id="name"></h2>
 <p id="rarity"></p>
+<p id="position"></p>
 </div>
+</div>
+
+<h2>排出確率</h2>
+
+<table>
+<tr><th>レア度</th><th>確率</th></tr>
+<tr><td>★5</td><td>7%</td></tr>
+<tr><td>★4</td><td>28%</td></tr>
+<tr><td>★3</td><td>65%</td></tr>
+</table>
 
 <h2>コレクション</h2>
 <div id="collection"></div>
 
 <script>
 
-const players=[
+/* -------------------- 選手データ -------------------- */
 
-/* ★5 スーパースター */
+let players=[
 
-{name:"メッシ",rarity:5},
-{name:"ロナウド",rarity:5},
-{name:"エムバペ",rarity:5},
-{name:"ネイマール",rarity:5},
-{name:"ハーランド",rarity:5},
-{name:"ベリンガム",rarity:5},
-{name:"デ・ブライネ",rarity:5},
-{name:"モドリッチ",rarity:5},
-{name:"ヴィニシウス",rarity:5},
-{name:"サラー",rarity:5},
-{name:"レヴァンドフスキ",rarity:5},
-{name:"ケイン",rarity:5},
-{name:"グリーズマン",rarity:5},
-{name:"デンベレ",rarity:5},
-{name:"ロドリ",rarity:5},
+{name:"メッシ",rarity:5,pos:"RW"},
+{name:"ロナウド",rarity:5,pos:"ST"},
+{name:"ネイマール",rarity:5,pos:"LW"},
+{name:"エムバペ",rarity:5,pos:"ST"},
+{name:"ハーランド",rarity:5,pos:"ST"},
+{name:"ベリンガム",rarity:5,pos:"CMF"},
+{name:"デブライネ",rarity:5,pos:"AMF"},
+{name:"モドリッチ",rarity:5,pos:"CMF"},
+{name:"サラー",rarity:5,pos:"RW"},
+{name:"ケイン",rarity:5,pos:"ST"},
+{name:"ヴィニシウス",rarity:5,pos:"LW"},
+{name:"レヴァンドフスキ",rarity:5,pos:"ST"},
+{name:"ロドリ",rarity:5,pos:"DMF"},
+{name:"グリーズマン",rarity:5,pos:"SS"},
+{name:"デンベレ",rarity:5,pos:"RW"},
 
-/* ★4 有名選手 */
+{name:"サカ",rarity:4,pos:"RW"},
+{name:"フォーデン",rarity:4,pos:"AMF"},
+{name:"ラッシュフォード",rarity:4,pos:"LW"},
+{name:"ブルーノフェルナンデス",rarity:4,pos:"AMF"},
+{name:"ソンフンミン",rarity:4,pos:"LW"},
+{name:"ラウタロ",rarity:4,pos:"ST"},
+{name:"ディバラ",rarity:4,pos:"SS"},
+{name:"キエーザ",rarity:4,pos:"RW"},
+{name:"アリソン",rarity:4,pos:"GK"},
+{name:"ドンナルンマ",rarity:4,pos:"GK"},
+{name:"テアシュテーゲン",rarity:4,pos:"GK"}
 
-{name:"フォーデン",rarity:4},
-{name:"アルバレス",rarity:4},
-{name:"ベルナルドシウバ",rarity:4},
-{name:"ギュンドアン",rarity:4},
-{name:"サカ",rarity:4},
-{name:"マルティネッリ",rarity:4},
-{name:"ウーデゴール",rarity:4},
-{name:"ラッシュフォード",rarity:4},
-{name:"ブルーノフェルナンデス",rarity:4},
-{name:"カゼミーロ",rarity:4},
-{name:"ディアス",rarity:4},
-{name:"ヌニェス",rarity:4},
-{name:"ジョタ",rarity:4},
-{name:"ソンフンミン",rarity:4},
-{name:"マディソン",rarity:4},
-{name:"ラウタロ",rarity:4},
-{name:"ディバラ",rarity:4},
-{name:"キエーザ",rarity:4},
-{name:"トナーリ",rarity:4},
-{name:"テオエルナンデス",rarity:4},
-{name:"ドンナルンマ",rarity:4},
-{name:"クルトワ",rarity:4},
-{name:"テアシュテーゲン",rarity:4},
-{name:"アリソン",rarity:4},
-{name:"エデルソン",rarity:4},
+];
 
-/* ★3 日本代表など */
+/* 200人以上に増やす */
 
-{name:"三笘薫",rarity:3},
-{name:"久保建英",rarity:3},
-{name:"遠藤航",rarity:3},
-{name:"冨安健洋",rarity:3},
-{name:"伊東純也",rarity:3},
-{name:"堂安律",rarity:3},
-{name:"鎌田大地",rarity:3},
-{name:"南野拓実",rarity:3},
-{name:"守田英正",rarity:3},
-{name:"板倉滉",rarity:3},
-{name:"吉田麻也",rarity:3},
-{name:"酒井宏樹",rarity:3},
-{name:"長友佑都",rarity:3},
-{name:"前田大然",rarity:3},
-{name:"上田綺世",rarity:3},
+let baseNames=[
+"三笘","久保","遠藤","冨安","鎌田","堂安","伊東","守田",
+"南野","板倉","前田","上田","古橋","田中","中村","浅野"
+];
 
-/* その他 */
+for(let i=0;i<220;i++){
 
-{name:"ジルー",rarity:3},
-{name:"モラタ",rarity:3},
-{name:"フェリックス",rarity:3},
-{name:"コマン",rarity:3},
-{name:"サネ",rarity:3},
-{name:"ミュラー",rarity:3},
-{name:"キミッヒ",rarity:3},
-{name:"ゴレツカ",rarity:3},
-{name:"ラビオ",rarity:3},
-{name:"ヴェッラッティ",rarity:3},
-{name:"ロカテッリ",rarity:3}
+let rarity=3;
 
-]
+if(i%30===0)rarity=4;
 
-let collection=[]
+players.push({
+name:baseNames[i%baseNames.length]+" "+(i+1),
+rarity:rarity,
+pos:"MF"
+})
+
+}
+
+/* -------------------- コレクション保存 -------------------- */
+
+let collection=JSON.parse(localStorage.getItem("gachaCollection"))||[];
+
+function saveCollection(){
+
+localStorage.setItem("gachaCollection",JSON.stringify(collection))
+
+}
+
+/* -------------------- 抽選 -------------------- */
 
 function roll(){
 
-let r=Math.random()
+let r=Math.random();
 
-let rarity
+let rarity;
 
-if(r<0.07){rarity=5}
-else if(r<0.35){rarity=4}
-else{rarity=3}
+if(r<0.07)rarity=5;
+else if(r<0.35)rarity=4;
+else rarity=3;
 
-let pool=players.filter(p=>p.rarity===rarity)
+let pool=players.filter(p=>p.rarity===rarity);
 
-return pool[Math.floor(Math.random()*pool.length)]
+return pool[Math.floor(Math.random()*pool.length)];
+
+}
+
+/* -------------------- 表示 -------------------- */
+
+function showPlayer(p){
+
+let card=document.getElementById("card");
+
+card.style.display="block";
+
+card.className="card star"+p.rarity;
+
+document.getElementById("name").textContent=p.name;
+document.getElementById("rarity").textContent="★".repeat(p.rarity);
+document.getElementById("position").textContent="POS : "+p.pos;
+
+document.getElementById("face").src=
+"https://ui-avatars.com/api/?background=random&name="+encodeURIComponent(p.name);
+
+collection.push(p.name);
+
+saveCollection();
+
+updateCollection();
 
 }
 
-function showPlayer(player){
-
-let card=document.getElementById("card")
-
-card.style.display="block"
-card.className="card star"+player.rarity
-
-document.getElementById("name").textContent=player.name
-document.getElementById("rarity").textContent="★".repeat(player.rarity)
-
-collection.push(player.name)
-updateCollection()
-
-}
+/* -------------------- コレクション表示 -------------------- */
 
 function updateCollection(){
 
-let area=document.getElementById("collection")
-area.innerHTML=""
+let area=document.getElementById("collection");
+
+area.innerHTML="";
 
 collection.forEach(p=>{
-let div=document.createElement("div")
-div.className="playerBox"
-div.textContent=p
-area.appendChild(div)
+
+let div=document.createElement("div");
+
+div.className="playerBox";
+
+div.textContent=p;
+
+area.appendChild(div);
+
 })
 
 }
 
-function startAnimation(callback){
+updateCollection();
 
-let anim=document.getElementById("animation")
+/* -------------------- ガチャ演出 -------------------- */
 
-anim.style.display="block"
-anim.classList.add("spin")
+function openPack(callback){
+
+let pack=document.getElementById("pack");
+
+pack.classList.add("open");
 
 setTimeout(()=>{
-anim.style.display="none"
-anim.classList.remove("spin")
-callback()
-},1200)
+
+pack.classList.remove("open");
+
+callback();
+
+},1000);
 
 }
+
+/* ★5 虹演出 */
+
+function rainbowEffect(callback){
+
+let tunnel=document.getElementById("tunnel");
+
+tunnel.style.display="block";
+
+setTimeout(()=>{
+
+tunnel.style.display="none";
+
+callback();
+
+},2000);
+
+}
+
+/* -------------------- ガチャボタン -------------------- */
 
 document.getElementById("single").onclick=function(){
 
-startAnimation(()=>{
-showPlayer(roll())
-})
+openPack(()=>{
+
+let p=roll();
+
+if(p.rarity===5){
+
+rainbowEffect(()=>showPlayer(p));
+
+}else{
+
+showPlayer(p);
 
 }
+
+});
+
+};
 
 document.getElementById("ten").onclick=function(){
 
-let i=0
+let i=0;
 
 function next(){
 
-if(i>=10)return
+if(i>=10)return;
 
-startAnimation(()=>{
-showPlayer(roll())
-i++
-next()
-})
+openPack(()=>{
+
+let p=roll();
+
+if(p.rarity===5){
+
+rainbowEffect(()=>showPlayer(p));
+
+}else{
+
+showPlayer(p);
 
 }
 
-next()
+i++;
+
+next();
+
+});
 
 }
+
+next();
+
+};
 
 </script>
 
