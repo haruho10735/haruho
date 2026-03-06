@@ -2,81 +2,84 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>サッカーガチャゲーム</title>
+<title>eFootball風ガチャ</title>
 
 <style>
 
 body{
-    font-family: sans-serif;
-    background: linear-gradient(135deg,#0a2a6b,#1c6cd5);
-    color:white;
-    text-align:center;
-    padding:40px;
+font-family:sans-serif;
+background:radial-gradient(circle,#001a40,#000814);
+color:white;
+text-align:center;
+padding:20px;
 }
 
-h1{
-    margin-bottom:30px;
+button{
+padding:12px 25px;
+margin:10px;
+font-size:18px;
+border:none;
+border-radius:8px;
+cursor:pointer;
 }
 
-#gachaButton{
-    font-size:22px;
-    padding:15px 40px;
-    border:none;
-    border-radius:10px;
-    background:gold;
-    color:black;
-    cursor:pointer;
+#single{background:#ffd700;color:black;}
+#ten{background:#00e5ff;color:black;}
+
+#animation{
+margin:30px auto;
+width:120px;
+height:120px;
+border-radius:50%;
+border:10px solid #1e90ff;
+border-top:10px solid white;
+display:none;
 }
 
-#gachaButton:hover{
-    transform:scale(1.05);
+.spin{
+animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+0%{transform:rotate(0deg)}
+100%{transform:rotate(360deg)}
 }
 
 .card{
-    margin:30px auto;
-    width:260px;
-    height:320px;
-    border-radius:15px;
-    padding:20px;
-    box-shadow:0 10px 25px rgba(0,0,0,0.5);
-    display:none;
-}
-
-.name{
-    font-size:26px;
-    margin-top:40px;
-}
-
-.rarity{
-    font-size:20px;
-    margin-top:10px;
+margin:20px auto;
+width:260px;
+height:320px;
+border-radius:15px;
+padding:20px;
+box-shadow:0 10px 25px rgba(0,0,0,0.6);
+display:none;
 }
 
 .star5{
-    background:linear-gradient(135deg,gold,orange);
+background:linear-gradient(135deg,gold,orange,red);
 }
 
 .star4{
-    background:linear-gradient(135deg,#6ec6ff,#1e88e5);
+background:linear-gradient(135deg,#4fc3f7,#1976d2);
 }
 
 .star3{
-    background:linear-gradient(135deg,#cfd8dc,#90a4ae);
+background:linear-gradient(135deg,#b0bec5,#78909c);
 }
 
-.effect{
-    animation:appear 0.5s ease;
+#collection{
+margin-top:30px;
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+gap:8px;
 }
 
-@keyframes appear{
-    from{
-        transform:scale(0.5);
-        opacity:0;
-    }
-    to{
-        transform:scale(1);
-        opacity:1;
-    }
+.playerBox{
+background:#111;
+padding:6px 10px;
+border-radius:6px;
+font-size:13px;
 }
 
 </style>
@@ -84,71 +87,192 @@ h1{
 
 <body>
 
-<h1>⚽ サッカー選手ガチャ</h1>
+<h1>⚽ eFootball風 ガチャ</h1>
 
-<button id="gachaButton">ガチャを引く</button>
+<button id="single">1回ガチャ</button>
+<button id="ten">10連ガチャ</button>
+
+<div id="animation"></div>
 
 <div id="card" class="card">
-    <div class="rarity" id="rarity"></div>
-    <div class="name" id="name"></div>
+<h2 id="name"></h2>
+<p id="rarity"></p>
 </div>
+
+<h2>コレクション</h2>
+<div id="collection"></div>
 
 <script>
 
-const players = [
-{name:"メッシ", rarity:5},
-{name:"ロナウド", rarity:5},
-{name:"ネイマール", rarity:5},
-{name:"エムバペ", rarity:5},
+const players=[
 
-{name:"ベリンガム", rarity:4},
-{name:"サラー", rarity:4},
-{name:"デ・ブライネ", rarity:4},
-{name:"モドリッチ", rarity:4},
+/* ★5 スーパースター */
 
-{name:"久保建英", rarity:3},
-{name:"三笘薫", rarity:3},
-{name:"遠藤航", rarity:3},
-{name:"冨安健洋", rarity:3}
-];
+{name:"メッシ",rarity:5},
+{name:"ロナウド",rarity:5},
+{name:"エムバペ",rarity:5},
+{name:"ネイマール",rarity:5},
+{name:"ハーランド",rarity:5},
+{name:"ベリンガム",rarity:5},
+{name:"デ・ブライネ",rarity:5},
+{name:"モドリッチ",rarity:5},
+{name:"ヴィニシウス",rarity:5},
+{name:"サラー",rarity:5},
+{name:"レヴァンドフスキ",rarity:5},
+{name:"ケイン",rarity:5},
+{name:"グリーズマン",rarity:5},
+{name:"デンベレ",rarity:5},
+{name:"ロドリ",rarity:5},
 
-function getRandomPlayer(){
+/* ★4 有名選手 */
 
-let r = Math.random();
+{name:"フォーデン",rarity:4},
+{name:"アルバレス",rarity:4},
+{name:"ベルナルドシウバ",rarity:4},
+{name:"ギュンドアン",rarity:4},
+{name:"サカ",rarity:4},
+{name:"マルティネッリ",rarity:4},
+{name:"ウーデゴール",rarity:4},
+{name:"ラッシュフォード",rarity:4},
+{name:"ブルーノフェルナンデス",rarity:4},
+{name:"カゼミーロ",rarity:4},
+{name:"ディアス",rarity:4},
+{name:"ヌニェス",rarity:4},
+{name:"ジョタ",rarity:4},
+{name:"ソンフンミン",rarity:4},
+{name:"マディソン",rarity:4},
+{name:"ラウタロ",rarity:4},
+{name:"ディバラ",rarity:4},
+{name:"キエーザ",rarity:4},
+{name:"トナーリ",rarity:4},
+{name:"テオエルナンデス",rarity:4},
+{name:"ドンナルンマ",rarity:4},
+{name:"クルトワ",rarity:4},
+{name:"テアシュテーゲン",rarity:4},
+{name:"アリソン",rarity:4},
+{name:"エデルソン",rarity:4},
 
-let rarity;
+/* ★3 日本代表など */
 
-if(r < 0.05){
-    rarity = 5;
+{name:"三笘薫",rarity:3},
+{name:"久保建英",rarity:3},
+{name:"遠藤航",rarity:3},
+{name:"冨安健洋",rarity:3},
+{name:"伊東純也",rarity:3},
+{name:"堂安律",rarity:3},
+{name:"鎌田大地",rarity:3},
+{name:"南野拓実",rarity:3},
+{name:"守田英正",rarity:3},
+{name:"板倉滉",rarity:3},
+{name:"吉田麻也",rarity:3},
+{name:"酒井宏樹",rarity:3},
+{name:"長友佑都",rarity:3},
+{name:"前田大然",rarity:3},
+{name:"上田綺世",rarity:3},
+
+/* その他 */
+
+{name:"ジルー",rarity:3},
+{name:"モラタ",rarity:3},
+{name:"フェリックス",rarity:3},
+{name:"コマン",rarity:3},
+{name:"サネ",rarity:3},
+{name:"ミュラー",rarity:3},
+{name:"キミッヒ",rarity:3},
+{name:"ゴレツカ",rarity:3},
+{name:"ラビオ",rarity:3},
+{name:"ヴェッラッティ",rarity:3},
+{name:"ロカテッリ",rarity:3}
+
+]
+
+let collection=[]
+
+function roll(){
+
+let r=Math.random()
+
+let rarity
+
+if(r<0.07){rarity=5}
+else if(r<0.35){rarity=4}
+else{rarity=3}
+
+let pool=players.filter(p=>p.rarity===rarity)
+
+return pool[Math.floor(Math.random()*pool.length)]
+
 }
-else if(r < 0.30){
-    rarity = 4;
+
+function showPlayer(player){
+
+let card=document.getElementById("card")
+
+card.style.display="block"
+card.className="card star"+player.rarity
+
+document.getElementById("name").textContent=player.name
+document.getElementById("rarity").textContent="★".repeat(player.rarity)
+
+collection.push(player.name)
+updateCollection()
+
 }
-else{
-    rarity = 3;
+
+function updateCollection(){
+
+let area=document.getElementById("collection")
+area.innerHTML=""
+
+collection.forEach(p=>{
+let div=document.createElement("div")
+div.className="playerBox"
+div.textContent=p
+area.appendChild(div)
+})
+
 }
 
-let filtered = players.filter(p => p.rarity === rarity);
+function startAnimation(callback){
 
-return filtered[Math.floor(Math.random()*filtered.length)];
+let anim=document.getElementById("animation")
+
+anim.style.display="block"
+anim.classList.add("spin")
+
+setTimeout(()=>{
+anim.style.display="none"
+anim.classList.remove("spin")
+callback()
+},1200)
 
 }
 
-document.getElementById("gachaButton").onclick = function(){
+document.getElementById("single").onclick=function(){
 
-let result = getRandomPlayer();
+startAnimation(()=>{
+showPlayer(roll())
+})
 
-let card = document.getElementById("card");
-let name = document.getElementById("name");
-let rarity = document.getElementById("rarity");
+}
 
-card.style.display="block";
+document.getElementById("ten").onclick=function(){
 
-card.className="card effect star"+result.rarity;
+let i=0
 
-name.textContent=result.name;
+function next(){
 
-rarity.textContent="★".repeat(result.rarity)+" レア";
+if(i>=10)return
+
+startAnimation(()=>{
+showPlayer(roll())
+i++
+next()
+})
+
+}
+
+next()
 
 }
 
