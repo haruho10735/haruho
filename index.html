@@ -2,52 +2,89 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>eFootball風 本格ガチャ</title>
+<title>eFootball ガチャ</title>
 
 <style>
 
 body{
+background:#0b1e35;
 font-family:sans-serif;
-background:radial-gradient(circle,#00122b,#000);
 color:white;
 text-align:center;
-padding:20px;
+margin:0;
 }
 
-h1{
-margin-bottom:10px;
+.header{
+background:#00142b;
+padding:15px;
+font-size:22px;
 }
 
 button{
-padding:12px 25px;
-margin:8px;
+padding:12px 24px;
+margin:10px;
 font-size:18px;
 border:none;
-border-radius:8px;
+border-radius:6px;
 cursor:pointer;
 }
 
-#single{background:#ffd700;color:black;}
-#ten{background:#00e5ff;color:black;}
+.single{background:#ffd700}
+.ten{background:#00d0ff}
 
-#pack{
+.pack{
 width:200px;
 height:260px;
 margin:30px auto;
-background:linear-gradient(135deg,#1e3c72,#2a5298);
+background:linear-gradient(#0d47a1,#1976d2);
 border-radius:10px;
 display:flex;
 align-items:center;
 justify-content:center;
-font-size:22px;
-transition:0.6s;
+font-size:24px;
+transition:.5s;
 }
 
 .open{
-transform:scale(1.2) rotateY(180deg);
+transform:rotateY(180deg) scale(1.1);
 }
 
-#tunnel{
+.card{
+width:280px;
+height:360px;
+background:#111;
+margin:20px auto;
+border-radius:12px;
+overflow:hidden;
+display:none;
+}
+
+.card img{
+width:100%;
+height:220px;
+object-fit:cover;
+}
+
+.star5{border:4px solid gold}
+.star4{border:4px solid #29b6f6}
+.star3{border:4px solid silver}
+
+#collection{
+display:flex;
+flex-wrap:wrap;
+justify-content:center;
+gap:6px;
+padding:20px;
+}
+
+.player{
+background:#111;
+padding:5px 10px;
+border-radius:5px;
+font-size:12px;
+}
+
+.rainbow{
 position:fixed;
 top:0;
 left:0;
@@ -57,71 +94,11 @@ background:linear-gradient(90deg,red,orange,yellow,green,cyan,blue,purple);
 background-size:400%;
 animation:rainbow 2s linear infinite;
 display:none;
-z-index:5;
 }
 
 @keyframes rainbow{
-0%{background-position:0%}
+0%{background-position:0}
 100%{background-position:400%}
-}
-
-.card{
-width:260px;
-height:340px;
-margin:20px auto;
-border-radius:15px;
-overflow:hidden;
-box-shadow:0 10px 30px rgba(0,0,0,0.7);
-display:none;
-background:#111;
-}
-
-.card img{
-width:100%;
-height:200px;
-object-fit:cover;
-}
-
-.cardInfo{
-padding:10px;
-}
-
-.star5{
-border:4px solid gold;
-}
-
-.star4{
-border:4px solid #29b6f6;
-}
-
-.star3{
-border:4px solid silver;
-}
-
-#collection{
-margin-top:20px;
-display:flex;
-flex-wrap:wrap;
-justify-content:center;
-gap:6px;
-}
-
-.playerBox{
-background:#111;
-padding:6px 10px;
-border-radius:6px;
-font-size:13px;
-}
-
-table{
-margin:auto;
-margin-top:20px;
-border-collapse:collapse;
-}
-
-td,th{
-border:1px solid #555;
-padding:6px 12px;
 }
 
 </style>
@@ -129,261 +106,221 @@ padding:6px 12px;
 
 <body>
 
-<h1>⚽ eFootball風 ガチャ</h1>
+<div class="header">⚽ eFootball ガチャ</div>
 
-<button id="single">1回ガチャ</button>
-<button id="ten">10連ガチャ</button>
+<button class="single" onclick="single()">1回ガチャ</button>
+<button class="ten" onclick="ten()">10連ガチャ</button>
 
-<div id="pack">PACK</div>
-
-<div id="tunnel"></div>
+<div id="pack" class="pack">PACK</div>
 
 <div id="card" class="card">
 <img id="face">
-<div class="cardInfo">
 <h2 id="name"></h2>
 <p id="rarity"></p>
-<p id="position"></p>
+<p id="pos"></p>
 </div>
-</div>
-
-<h2>排出確率</h2>
-
-<table>
-<tr><th>レア度</th><th>確率</th></tr>
-<tr><td>★5</td><td>7%</td></tr>
-<tr><td>★4</td><td>28%</td></tr>
-<tr><td>★3</td><td>65%</td></tr>
-</table>
 
 <h2>コレクション</h2>
 <div id="collection"></div>
 
+<div id="rainbow" class="rainbow"></div>
+
 <script>
 
-/* -------------------- 選手データ -------------------- */
+/* -------------------- 実在選手データ -------------------- */
 
 let players=[
 
-{name:"メッシ",rarity:5,pos:"RW"},
-{name:"ロナウド",rarity:5,pos:"ST"},
-{name:"ネイマール",rarity:5,pos:"LW"},
-{name:"エムバペ",rarity:5,pos:"ST"},
-{name:"ハーランド",rarity:5,pos:"ST"},
-{name:"ベリンガム",rarity:5,pos:"CMF"},
-{name:"デブライネ",rarity:5,pos:"AMF"},
-{name:"モドリッチ",rarity:5,pos:"CMF"},
-{name:"サラー",rarity:5,pos:"RW"},
-{name:"ケイン",rarity:5,pos:"ST"},
-{name:"ヴィニシウス",rarity:5,pos:"LW"},
-{name:"レヴァンドフスキ",rarity:5,pos:"ST"},
-{name:"ロドリ",rarity:5,pos:"DMF"},
-{name:"グリーズマン",rarity:5,pos:"SS"},
-{name:"デンベレ",rarity:5,pos:"RW"},
+/* ★5 */
 
-{name:"サカ",rarity:4,pos:"RW"},
-{name:"フォーデン",rarity:4,pos:"AMF"},
-{name:"ラッシュフォード",rarity:4,pos:"LW"},
-{name:"ブルーノフェルナンデス",rarity:4,pos:"AMF"},
-{name:"ソンフンミン",rarity:4,pos:"LW"},
-{name:"ラウタロ",rarity:4,pos:"ST"},
-{name:"ディバラ",rarity:4,pos:"SS"},
-{name:"キエーザ",rarity:4,pos:"RW"},
-{name:"アリソン",rarity:4,pos:"GK"},
-{name:"ドンナルンマ",rarity:4,pos:"GK"},
-{name:"テアシュテーゲン",rarity:4,pos:"GK"}
+{name:"Lionel Messi",rarity:5,pos:"RW"},
+{name:"Cristiano Ronaldo",rarity:5,pos:"ST"},
+{name:"Kylian Mbappe",rarity:5,pos:"ST"},
+{name:"Erling Haaland",rarity:5,pos:"ST"},
+{name:"Neymar",rarity:5,pos:"LW"},
+{name:"Kevin De Bruyne",rarity:5,pos:"AMF"},
+{name:"Jude Bellingham",rarity:5,pos:"CMF"},
+{name:"Robert Lewandowski",rarity:5,pos:"ST"},
+{name:"Harry Kane",rarity:5,pos:"ST"},
+{name:"Mohamed Salah",rarity:5,pos:"RW"},
+{name:"Vinicius Junior",rarity:5,pos:"LW"},
+{name:"Rodri",rarity:5,pos:"DMF"},
+{name:"Antoine Griezmann",rarity:5,pos:"SS"},
+{name:"Luka Modric",rarity:5,pos:"CMF"},
+{name:"Pedri",rarity:5,pos:"CMF"},
+
+/* ★4 */
+
+{name:"Bukayo Saka",rarity:4,pos:"RW"},
+{name:"Phil Foden",rarity:4,pos:"AMF"},
+{name:"Marcus Rashford",rarity:4,pos:"LW"},
+{name:"Bruno Fernandes",rarity:4,pos:"AMF"},
+{name:"Son Heung-min",rarity:4,pos:"LW"},
+{name:"Lautaro Martinez",rarity:4,pos:"ST"},
+{name:"Paulo Dybala",rarity:4,pos:"SS"},
+{name:"Federico Chiesa",rarity:4,pos:"RW"},
+{name:"Theo Hernandez",rarity:4,pos:"LB"},
+{name:"Achraf Hakimi",rarity:4,pos:"RB"},
+{name:"Declan Rice",rarity:4,pos:"DMF"},
+{name:"Bernardo Silva",rarity:4,pos:"AMF"},
+{name:"Jamal Musiala",rarity:4,pos:"AMF"},
+{name:"Joshua Kimmich",rarity:4,pos:"DMF"},
+{name:"Martin Odegaard",rarity:4,pos:"AMF"},
+
+/* 日本代表 */
+
+{name:"Kaoru Mitoma",rarity:3,pos:"LW"},
+{name:"Takefusa Kubo",rarity:3,pos:"RW"},
+{name:"Wataru Endo",rarity:3,pos:"DMF"},
+{name:"Takehiro Tomiyasu",rarity:3,pos:"CB"},
+{name:"Daichi Kamada",rarity:3,pos:"AMF"},
+{name:"Ritsu Doan",rarity:3,pos:"RW"},
+{name:"Junichi Ito",rarity:3,pos:"RW"},
+{name:"Hidemasa Morita",rarity:3,pos:"CMF"},
+{name:"Takumi Minamino",rarity:3,pos:"AMF"}
 
 ];
 
-/* 200人以上に増やす */
+/* ---------- 実在選手をさらに大量追加 ---------- */
 
-let baseNames=[
-"三笘","久保","遠藤","冨安","鎌田","堂安","伊東","守田",
-"南野","板倉","前田","上田","古橋","田中","中村","浅野"
+let extraPlayers=[
+
+"Alisson","Ederson","Thibaut Courtois","Jan Oblak","Marc-Andre ter Stegen",
+"Virgil van Dijk","Ruben Dias","John Stones","Antonio Rudiger","Kalidou Koulibaly",
+"Andrew Robertson","Trent Alexander-Arnold","Reece James","Ben Chilwell",
+"Casemiro","Toni Kroos","Ilkay Gundogan","Marco Verratti","Nicolo Barella",
+"Serge Gnabry","Kingsley Coman","Leroy Sane","Ousmane Dembele","Rafael Leao",
+"Joao Felix","Darwin Nunez","Gabriel Jesus","Julian Alvarez","Victor Osimhen",
+"Romelu Lukaku","Edin Dzeko","Dusan Vlahovic","Ciro Immobile","Alvaro Morata"
+
 ];
 
-for(let i=0;i<220;i++){
+/* 1000人まで増やす */
 
-let rarity=3;
+for(let i=0;i<1000;i++){
 
-if(i%30===0)rarity=4;
+let name=extraPlayers[i%extraPlayers.length]+" "+i
 
 players.push({
-name:baseNames[i%baseNames.length]+" "+(i+1),
-rarity:rarity,
+name:name,
+rarity:3,
 pos:"MF"
 })
 
 }
 
-/* -------------------- コレクション保存 -------------------- */
-
-let collection=JSON.parse(localStorage.getItem("gachaCollection"))||[];
-
-function saveCollection(){
-
-localStorage.setItem("gachaCollection",JSON.stringify(collection))
-
-}
-
-/* -------------------- 抽選 -------------------- */
+/* -------------------- ガチャロジック -------------------- */
 
 function roll(){
 
-let r=Math.random();
+let r=Math.random()
 
-let rarity;
+let rarity
 
-if(r<0.07)rarity=5;
-else if(r<0.35)rarity=4;
-else rarity=3;
+if(r<0.07)rarity=5
+else if(r<0.35)rarity=4
+else rarity=3
 
-let pool=players.filter(p=>p.rarity===rarity);
+let pool=players.filter(p=>p.rarity==rarity)
 
-return pool[Math.floor(Math.random()*pool.length)];
+return pool[Math.floor(Math.random()*pool.length)]
 
 }
 
 /* -------------------- 表示 -------------------- */
 
-function showPlayer(p){
+function show(p){
 
-let card=document.getElementById("card");
+let card=document.getElementById("card")
 
-card.style.display="block";
+card.style.display="block"
 
-card.className="card star"+p.rarity;
+card.className="card star"+p.rarity
 
-document.getElementById("name").textContent=p.name;
-document.getElementById("rarity").textContent="★".repeat(p.rarity);
-document.getElementById("position").textContent="POS : "+p.pos;
+document.getElementById("name").textContent=p.name
+document.getElementById("rarity").textContent="★".repeat(p.rarity)
+document.getElementById("pos").textContent=p.pos
 
 document.getElementById("face").src=
-"https://ui-avatars.com/api/?background=random&name="+encodeURIComponent(p.name);
-
-collection.push(p.name);
-
-saveCollection();
-
-updateCollection();
+"https://ui-avatars.com/api/?background=random&name="+encodeURIComponent(p.name)
 
 }
 
-/* -------------------- コレクション表示 -------------------- */
+/* -------------------- 演出 -------------------- */
 
-function updateCollection(){
+function openPack(cb){
 
-let area=document.getElementById("collection");
+let pack=document.getElementById("pack")
 
-area.innerHTML="";
+pack.classList.add("open")
 
-collection.forEach(p=>{
+setTimeout(()=>{
 
-let div=document.createElement("div");
+pack.classList.remove("open")
 
-div.className="playerBox";
+cb()
 
-div.textContent=p;
+},1000)
 
-area.appendChild(div);
+}
+
+function rainbow(cb){
+
+let r=document.getElementById("rainbow")
+
+r.style.display="block"
+
+setTimeout(()=>{
+
+r.style.display="none"
+
+cb()
+
+},2000)
+
+}
+
+/* -------------------- ガチャ -------------------- */
+
+function single(){
+
+openPack(()=>{
+
+let p=roll()
+
+if(p.rarity==5) rainbow(()=>show(p))
+else show(p)
 
 })
 
 }
 
-updateCollection();
+function ten(){
 
-/* -------------------- ガチャ演出 -------------------- */
-
-function openPack(callback){
-
-let pack=document.getElementById("pack");
-
-pack.classList.add("open");
-
-setTimeout(()=>{
-
-pack.classList.remove("open");
-
-callback();
-
-},1000);
-
-}
-
-/* ★5 虹演出 */
-
-function rainbowEffect(callback){
-
-let tunnel=document.getElementById("tunnel");
-
-tunnel.style.display="block";
-
-setTimeout(()=>{
-
-tunnel.style.display="none";
-
-callback();
-
-},2000);
-
-}
-
-/* -------------------- ガチャボタン -------------------- */
-
-document.getElementById("single").onclick=function(){
-
-openPack(()=>{
-
-let p=roll();
-
-if(p.rarity===5){
-
-rainbowEffect(()=>showPlayer(p));
-
-}else{
-
-showPlayer(p);
-
-}
-
-});
-
-};
-
-document.getElementById("ten").onclick=function(){
-
-let i=0;
+let i=0
 
 function next(){
 
-if(i>=10)return;
+if(i>=10)return
 
 openPack(()=>{
 
-let p=roll();
+let p=roll()
 
-if(p.rarity===5){
+if(p.rarity==5) rainbow(()=>show(p))
+else show(p)
 
-rainbowEffect(()=>showPlayer(p));
+i++
 
-}else{
+next()
 
-showPlayer(p);
-
-}
-
-i++;
-
-next();
-
-});
+})
 
 }
 
-next();
+next()
 
-};
+}
 
 </script>
 
