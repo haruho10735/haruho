@@ -1,1 +1,158 @@
-マンチェスター・シティはアーセナルに勝て
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>サッカーガチャゲーム</title>
+
+<style>
+
+body{
+    font-family: sans-serif;
+    background: linear-gradient(135deg,#0a2a6b,#1c6cd5);
+    color:white;
+    text-align:center;
+    padding:40px;
+}
+
+h1{
+    margin-bottom:30px;
+}
+
+#gachaButton{
+    font-size:22px;
+    padding:15px 40px;
+    border:none;
+    border-radius:10px;
+    background:gold;
+    color:black;
+    cursor:pointer;
+}
+
+#gachaButton:hover{
+    transform:scale(1.05);
+}
+
+.card{
+    margin:30px auto;
+    width:260px;
+    height:320px;
+    border-radius:15px;
+    padding:20px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.5);
+    display:none;
+}
+
+.name{
+    font-size:26px;
+    margin-top:40px;
+}
+
+.rarity{
+    font-size:20px;
+    margin-top:10px;
+}
+
+.star5{
+    background:linear-gradient(135deg,gold,orange);
+}
+
+.star4{
+    background:linear-gradient(135deg,#6ec6ff,#1e88e5);
+}
+
+.star3{
+    background:linear-gradient(135deg,#cfd8dc,#90a4ae);
+}
+
+.effect{
+    animation:appear 0.5s ease;
+}
+
+@keyframes appear{
+    from{
+        transform:scale(0.5);
+        opacity:0;
+    }
+    to{
+        transform:scale(1);
+        opacity:1;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>⚽ サッカー選手ガチャ</h1>
+
+<button id="gachaButton">ガチャを引く</button>
+
+<div id="card" class="card">
+    <div class="rarity" id="rarity"></div>
+    <div class="name" id="name"></div>
+</div>
+
+<script>
+
+const players = [
+{name:"メッシ", rarity:5},
+{name:"ロナウド", rarity:5},
+{name:"ネイマール", rarity:5},
+{name:"エムバペ", rarity:5},
+
+{name:"ベリンガム", rarity:4},
+{name:"サラー", rarity:4},
+{name:"デ・ブライネ", rarity:4},
+{name:"モドリッチ", rarity:4},
+
+{name:"久保建英", rarity:3},
+{name:"三笘薫", rarity:3},
+{name:"遠藤航", rarity:3},
+{name:"冨安健洋", rarity:3}
+];
+
+function getRandomPlayer(){
+
+let r = Math.random();
+
+let rarity;
+
+if(r < 0.05){
+    rarity = 5;
+}
+else if(r < 0.30){
+    rarity = 4;
+}
+else{
+    rarity = 3;
+}
+
+let filtered = players.filter(p => p.rarity === rarity);
+
+return filtered[Math.floor(Math.random()*filtered.length)];
+
+}
+
+document.getElementById("gachaButton").onclick = function(){
+
+let result = getRandomPlayer();
+
+let card = document.getElementById("card");
+let name = document.getElementById("name");
+let rarity = document.getElementById("rarity");
+
+card.style.display="block";
+
+card.className="card effect star"+result.rarity;
+
+name.textContent=result.name;
+
+rarity.textContent="★".repeat(result.rarity)+" レア";
+
+}
+
+</script>
+
+</body>
+</html>
