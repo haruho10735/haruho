@@ -3,218 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Real Football Gacha</title>
+    <title>Football Gacha 2026: Road to World Cup</title>
     <style>
-        body {
-            margin: 0;
-            font-family: 'Helvetica Neue', Arial, sans-serif;
-            background: #061426;
-            color: white;
-            text-align: center;
-            padding-bottom: 50px;
+        :root {
+            --pitch-green: #1b5e20;
+            --gold: #ffcc00;
+            --silver: #e0e0e0;
+            --bronze: #cd7f32;
         }
+        body { margin: 0; font-family: 'Helvetica Neue', Arial, sans-serif; background: #050a10; color: white; text-align: center; overflow-x: hidden; }
+        
+        .header { background: linear-gradient(135deg, #001f3f, #001021); padding: 25px; border-bottom: 4px solid var(--gold); position: sticky; top: 0; z-index: 100; }
+        .date-info { font-size: 14px; color: #00d0ff; font-weight: bold; }
 
-        .header {
-            background: linear-gradient(180deg, #001b3a 0%, #000c1a 100%);
-            padding: 20px;
-            font-size: 24px;
-            font-weight: bold;
-            border-bottom: 2px solid #00d0ff;
-            margin-bottom: 20px;
+        .controls { margin: 20px 0; background: rgba(255,255,255,0.05); padding: 15px; }
+        button { padding: 12px 28px; margin: 8px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.3s; }
+        .btn-draw { background: var(--gold); color: #000; box-shadow: 0 4px 0 #b8860b; }
+        .btn-draw:active { transform: translateY(4px); box-shadow: none; }
+        .btn-team { background: #007bff; color: white; box-shadow: 0 4px 0 #0056b3; }
+
+        /* ガチャ結果 */
+        #result { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; padding: 20px; min-height: 180px; }
+        .card { width: 150px; background: #1a1a1a; border-radius: 8px; padding: 12px; border: 1px solid #333; position: relative; transition: 0.3s; }
+        .card:hover { transform: scale(1.05); z-index: 10; }
+        .star5 { border: 2px solid var(--gold); box-shadow: 0 0 15px rgba(255, 204, 0, 0.4); background: linear-gradient(145deg, #1a1a1a, #2a2400); }
+        .star4 { border: 2px solid #00d0ff; }
+        
+        .ovr { position: absolute; top: -10px; left: -10px; width: 35px; height: 35px; background: var(--gold); color: #000; font-weight: bold; border-radius: 50%; line-height: 35px; border: 2px solid #fff; }
+        .pos-tag { font-size: 10px; background: #444; padding: 2px 5px; border-radius: 3px; }
+
+        /* ピッチ */
+        .pitch-container {
+            position: relative; width: 380px; height: 520px; background: var(--pitch-green); margin: 30px auto;
+            border: 5px solid #fff; border-radius: 15px;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.1) 2px, transparent 2px),
+                radial-gradient(circle at 50% 50%, transparent 50px, #fff 51px, transparent 52px);
+            background-size: 100% 40px, 100% 100%;
         }
+        .center-line { position: absolute; top: 50%; width: 100%; height: 2px; background: #fff; }
 
-        .controls {
-            margin: 20px 0;
-        }
+        .player-on-pitch { position: absolute; width: 80px; transform: translateX(-50%); text-align: center; }
+        .p-icon { width: 45px; height: 45px; border-radius: 50%; background: #fff; color: #000; line-height: 45px; font-weight: bold; margin: 0 auto; border: 2px solid var(--gold); font-size: 18px; }
+        .p-name { font-size: 11px; background: rgba(0,0,0,0.8); color: white; padding: 2px; border-radius: 4px; margin-top: 4px; overflow: hidden; white-space: nowrap; }
 
-        button {
-            padding: 12px 25px;
-            margin: 5px;
-            border: none;
-            border-radius: 50px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: transform 0.1s, box-shadow 0.2s;
-        }
-
-        button:active { transform: scale(0.95); }
-
-        .single { background: #ffd700; color: #333; box-shadow: 0 4px 0 #b8860b; }
-        .ten { background: #00d0ff; color: white; box-shadow: 0 4px 0 #008ebf; }
-
-        #result {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            justify-content: center;
-            padding: 20px;
-            min-height: 300px;
-        }
-
-        /* カードデザイン */
-        .card {
-            width: 200px;
-            background: #111;
-            border-radius: 15px;
-            padding: 15px;
-            position: relative;
-            overflow: hidden;
-            border: 2px solid #333;
-            transition: all 0.3s ease;
-        }
-
-        .card img {
-            width: 100px;
-            height: 100px;
-            border-radius: 50%;
-            background: #222;
-            margin-bottom: 10px;
-        }
-
-        /* レアリティ別演出 */
-        .star5 { border-color: gold; box-shadow: 0 0 15px gold; background: linear-gradient(135deg, #111 0%, #2a2200 100%); }
-        .star4 { border-color: #00e5ff; box-shadow: 0 0 10px #00e5ff; }
-        .star3 { border-color: #888; }
-
-        .card h3 { margin: 10px 0 5px; font-size: 16px; }
-        .card .info { font-size: 12px; color: #aaa; margin-bottom: 10px; }
-        .card .ovr { font-size: 20px; font-weight: bold; color: gold; }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 5px;
-            font-size: 11px;
-            margin-top: 10px;
-            text-align: left;
-        }
-
-        .stat-item { border-bottom: 1px solid #222; padding: 2px; }
-
-        /* コレクションセクション */
-        .coll-title {
-            margin-top: 40px;
-            padding: 10px;
-            background: #001b3a;
-        }
-
-        #collection {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .item {
-            background: #1a1a1a;
-            padding: 5px 12px;
-            font-size: 12px;
-            border-radius: 20px;
-            border: 1px solid #333;
-            color: #ddd;
-        }
+        #collection { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; padding: 20px; background: #0a1118; border-top: 2px solid #333; }
+        .item { font-size: 11px; background: #1a1a1a; padding: 4px 10px; border-radius: 20px; border: 1px solid #444; }
     </style>
 </head>
-
 <body>
 
-<div class="header">⚽ Real Player Gacha</div>
+<div class="header">
+    <div class="date-info">CALENDAR: 2026.03.17 - WORLD CUP SEASON</div>
+    <h1>⚽ REAL FOOTBALL GACHA PRO</h1>
+</div>
 
 <div class="controls">
-    <button class="single" onclick="draw(1)">1回引く</button>
-    <button class="ten" onclick="draw(10)">10連ガチャ</button>
+    <button class="btn-draw" onclick="draw(1)">1回ガチャ</button>
+    <button class="btn-draw" onclick="draw(10)">10連ガチャ</button>
+    <button class="btn-team" onclick="resetTeam()">チームリセット</button>
 </div>
 
 <div id="result"></div>
 
-<div class="coll-title">獲得済み選手（図鑑）</div>
+<h2>MY BEST ELEVEN (4-3-3)</h2>
+<div class="pitch-container" id="pitch">
+    <div class="center-line"></div>
+</div>
+
+<h3>PLAYER DATABASE (図鑑)</h3>
 <div id="collection"></div>
 
 <script>
-/* ===== 選手データ（整理済み） ===== */
+/* ===== 2026年3月17日時点の120名データ（想定） ===== */
 const players = [
-    /* ★5 */
-    {name:"Lionel Messi",club:"Inter Miami",nation:"🇦🇷",pos:"RW",ovr:95,spd:85,sht:92,pas:95,dri:97,def:38,phy:65,rarity:5},
-    {name:"Cristiano Ronaldo",club:"Al Nassr",nation:"🇵🇹",pos:"ST",ovr:94,spd:83,sht:94,pas:80,dri:88,def:35,phy:78,rarity:5},
-    {name:"Kylian Mbappé",club:"Real Madrid",nation:"🇫🇷",pos:"ST",ovr:93,spd:97,sht:90,pas:80,dri:92,def:36,phy:76,rarity:5},
-    {name:"Erling Haaland",club:"Man City",nation:"🇳🇴",pos:"ST",ovr:92,spd:89,sht:96,pas:75,dri:85,def:45,phy:90,rarity:5},
-    {name:"Kevin De Bruyne",club:"Man City",nation:"🇧🇪",pos:"AMF",ovr:91,spd:75,sht:86,pas:94,dri:88,def:60,phy:78,rarity:5},
-    {name:"Jude Bellingham",club:"Real Madrid",nation:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",pos:"CMF",ovr:91,spd:80,sht:85,pas:87,dri:88,def:78,phy:85,rarity:5},
-    {name:"Vinicius Jr",club:"Real Madrid",nation:"🇧🇷",pos:"LW",ovr:90,spd:95,sht:85,pas:80,dri:94,def:40,phy:70,rarity:5},
-    {name:"Harry Kane",club:"Bayern",nation:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",pos:"ST",ovr:91,spd:75,sht:92,pas:83,dri:82,def:50,phy:85,rarity:5},
-    {name:"Robert Lewandowski",club:"Barcelona",nation:"🇵🇱",pos:"ST",ovr:91,spd:78,sht:93,pas:80,dri:85,def:45,phy:84,rarity:5},
-    {name:"Mohamed Salah",club:"Liverpool",nation:"🇪🇬",pos:"RW",ovr:90,spd:92,sht:88,pas:82,dri:90,def:50,phy:75,rarity:5},
-    {name:"Thibaut Courtois",club:"Real Madrid",nation:"🇧🇪",pos:"GK",ovr:90,spd:60,sht:40,pas:75,dri:60,def:92,phy:88,rarity:5},
-    
-    /* ★4 */
-    {name:"Bukayo Saka",club:"Arsenal",nation:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",pos:"RW",ovr:88,spd:88,sht:83,pas:82,dri:90,def:60,phy:70,rarity:4},
-    {name:"Son Heung-min",club:"Tottenham",nation:"🇰🇷",pos:"LW",ovr:89,spd:90,sht:88,pas:80,dri:85,def:50,phy:75,rarity:4},
-    {name:"Federico Valverde",club:"Real Madrid",nation:"🇺🇾",pos:"CMF",ovr:88,spd:85,sht:85,pas:82,dri:85,def:80,phy:88,rarity:4},
-    {name:"Martin Ødegaard",club:"Arsenal",nation:"🇳🇴",pos:"AMF",ovr:87,spd:78,sht:80,pas:88,dri:87,def:65,phy:68,rarity:4},
-    {name:"Virgil van Dijk",club:"Liverpool",nation:"🇳🇱",pos:"CB",ovr:89,spd:78,sht:60,pas:75,dri:70,def:92,phy:90,rarity:4},
-    {name:"Rodri",club:"Man City",nation:"🇪🇸",pos:"DMF",ovr:89,spd:70,sht:80,pas:88,dri:82,def:90,phy:88,rarity:4},
+    // ★5 Superstars (World Top)
+    {name:"K. Mbappé", club:"Real Madrid", nation:"🇫🇷", pos:"ST", ovr:95, rarity:5},
+    {name:"L. Yamal", club:"Barcelona", nation:"🇪🇸", pos:"RW", ovr:94, rarity:5},
+    {name:"E. Haaland", club:"Man City", nation:"🇳🇴", pos:"ST", ovr:94, rarity:5},
+    {name:"J. Bellingham", club:"Real Madrid", nation:"🏴󠁧󠁢󠁥󠁮󠁧󠁿", pos:"CM", ovr:93, rarity:5},
+    {name:"Vinícius Jr.", club:"Real Madrid", nation:"🇧🇷", pos:"LW", ovr:92, rarity:5},
+    {name:"F. Wirtz", club:"Real Madrid", nation:"🇩🇪", pos:"AM", ovr:91, rarity:5},
+    {name:"J. Musiala", club:"Bayern", nation:"🇩🇪", pos:"AM", ovr:91, rarity:5},
+    {name:"Rodri", club:"Man City", nation:"🇪🇸", pos:"DM", ovr:91, rarity:5},
+    {name:"P. Foden", club:"Man City", nation:"🏴󠁧󠁢󠁥󠁮󠁧󠁿", pos:"RW", ovr:90, rarity:5},
+    {name:"B. Saka", club:"Arsenal", nation:"🏴󠁧󠁢󠁥󠁮󠁧󠁿", pos:"RW", ovr:90, rarity:5},
+    {name:"T. Kubo", club:"Liverpool", nation:"🇯🇵", pos:"RW", ovr:89, rarity:5},
+    {name:"K. Mitoma", club:"Man City", nation:"🇯🇵", pos:"LW", ovr:88, rarity:5},
+    {name:"C. Palmer", club:"Chelsea", nation:"🏴󠁧󠁢󠁥󠁮󠁧󠁿", pos:"AM", ovr:90, rarity:5},
+    {name:"H. Kane", club:"Bayern", nation:"🏴󠁧󠁢󠁥󠁮󠁧󠁿", pos:"ST", ovr:91, rarity:5},
 
-    /* ★3 */
-    {name:"Kaoru Mitoma",club:"Brighton",nation:"🇯🇵",pos:"LW",ovr:82,spd:90,sht:75,pas:78,dri:88,def:50,phy:65,rarity:3},
-    {name:"Takefusa Kubo",club:"Sociedad",nation:"🇯🇵",pos:"RW",ovr:82,spd:85,sht:78,pas:80,dri:88,def:55,phy:60,rarity:3},
-    {name:"Wataru Endo",club:"Liverpool",nation:"🇯🇵",pos:"DMF",ovr:80,spd:70,sht:65,pas:75,dri:70,def:85,phy:82,rarity:3},
-    {name:"Richarlison",club:"Tottenham",nation:"🇧🇷",pos:"ST",ovr:83,spd:85,sht:82,pas:70,dri:82,def:50,phy:80,rarity:3}
-];
+    // ★4 Elite (Major Leagues)
+    {name:"W. Saliba", club:"Arsenal", nation:"🇫🇷", pos:"CB", ovr:89, rarity:4},
+    {name:"R. Araujo", club:"Barcelona", nation:"🇺🇾", pos:"CB", ovr:88, rarity:4},
+    {name:"Pedri", club:"Barcelona", nation:"🇪🇸", pos:"CM", ovr:89, rarity:4},
+    {name:"Gavi", club:"Barcelona", nation:"🇪🇸", pos:"CM", ovr:88, rarity:4},
+    {name:"F. Valverde", club:"Real Madrid", nation:"🇺🇾", pos:"CM", ovr:90, rarity:4},
+    {name:"E. Camavinga", club:"Real Madrid", nation:"🇫🇷", pos:"CM", ovr:87, rarity:4},
+    {name:"Tchouaméni", club:"Real Madrid", nation:"🇫🇷", pos:"DM", ovr:87, rarity:4},
+    {name:"Endrick", club:"Real Madrid", nation:"🇧🇷", pos:"ST", ovr:86, rarity:4},
+    {name:"Arda Güler", club:"Real Madrid", nation:"🇹🇷", pos:"AM", ovr:85, rarity:4},
+    {name:"M. Ødegaard", club:"Arsenal", nation:"🇳🇴", pos:"AM", ovr:89, rarity:4},
+    {name:"D. Rice", club:"Arsenal", nation:"🏴󠁧󠁢󠁥󠁮󠁧󠁿", pos:"DM", ovr:89, rarity:4},
+    {name:"K. Havertz", club:"Arsenal", nation:"🇩🇪", pos:"ST", ovr:86, rarity:4},
+    {name:"L. Díaz", club:"Liverpool", nation:"🇨🇴", pos:"LW", ovr:87, rarity:4},
+    {name:"D. Núñez", club:"Liverpool", nation:"🇺🇾", pos:"ST", ovr:85, rarity:4},
+    {name:"Mac Allister", club:"Liverpool", nation:"🇦🇷", pos:"CM", ovr:87, rarity:4},
+    {name:"T. Alexander-Arnold", club:"Real Madrid", nation:"🏴󠁧󠁢󠁥󠁮󠁧󠁿", pos:"RB", ovr:89, rarity:4},
+    {name:"B. Guimarães", club:"Newcastle", nation:"🇧🇷", pos:"CM", ovr:87, rarity:4},
+    {name:"A. Isak", club:"Newcastle", nation:"🇸🇪", pos:"ST", ovr:87, rarity:4},
+    {name:"N. Jackson", club:"Chelsea", nation:"🇸🇳", pos:"ST", ovr:84, rarity:4},
+    {name:"M. Caicedo", club:"Chelsea", nation:"🇪🇨", pos:"DM", ovr:86, rarity:4},
+    {name:"K. Mainoo", club:"Man Utd", nation:"🏴󠁧󠁢󠁥󠁮󠁧󠁿", pos:"CM", ovr:85, rarity:4},
+    {name:"A. Garnacho", club:"Man Utd", nation:"🇦🇷", pos:"LW", ovr:84, rarity:4},
+    {name:"Bruno Fernandes", club:"Man Utd", nation:"🇵🇹", pos:"AM", ovr:88, rarity:4},
+    {name:"Son Heung-min", club:"Tottenham", nation:"🇰🇷", pos:"LW", ovr:87, rarity:4},
+    {name:"M. van de Ven", club:"Tottenham", nation:"🇳🇱", pos:"CB", ovr:86, rarity:4},
+    {name:"Lautaro Martínez", club:"Inter", nation:"🇦🇷", pos:"ST", ovr:89, rarity:4},
+    {name:"N. Barella", club:"Inter", nation:"🇮🇹", pos:"CM", ovr:88, rarity:4},
+    {name:"A. Bastoni", club:"Inter", nation:"🇮🇹", pos:"CB", ovr:88, rarity:4},
+    {name:"Rafael Leão", club:"Milan", nation:"🇵🇹", pos:"LW", ovr:88, rarity:4},
+    {name:"Theo Hernández", club:"Milan", nation:"🇫🇷", pos:"LB", ovr:88, rarity:4},
+    {name:"K. Yildiz", club:"Juventus", nation:"🇹🇷", pos:"ST", ovr:84, rarity:4},
+    {name:"D. Vlahović", club:"Juventus", nation:"🇷🇸", pos:"ST", ovr:86, rarity:4},
+    {name:"Kvaratskhelia", club:"Napoli", nation:"🇬🇪", pos:"LW", ovr:87, rarity:4},
+    {name:"O. Dembélé", club:"PSG", nation:"🇫🇷", pos:"RW", ovr:87, rarity:4},
+    {name:"Vitinha", club:"PSG", nation:"🇵🇹", pos:"CM", ovr:87, rarity:4},
+    {name:"Joao Neves", club:"PSG", nation:"🇵🇹", pos:"CM", ovr:86, rarity:4},
+    {name:"B. Barcola", club:"PSG", nation:"🇫🇷", pos:"LW", ovr:85, rarity:4},
+    {name:"Xavi Simons", club:"Leipzig", nation:"🇳🇱", pos:"AM", ovr:87, rarity:4},
+    {name:"Grimaldo", club:"Leverkusen", nation:"🇪🇸", pos:"LB", ovr:87, rarity:4},
+    {name:"J. Frimpong", club:"Leverkusen", nation:"🇳🇱", pos:"RB", ovr:86, rarity:4},
+    {name:"V. Osimhen", club:"Napoli", nation:"🇳🇬", pos:"ST", ovr:88, rarity:4},
+    {name:"G. Donnarumma", club:"PSG", nation:"🇮🇹", pos:"GK", ovr:89, rarity:4},
+    {name:"Alisson", club:"Liverpool", nation:"🇧🇷", pos:"GK", ovr:89, rarity:4},
+    {name:"M. Maignan", club:"Milan", nation:"🇫🇷", pos:"GK", ovr:88, rarity:4},
 
-/* ===== ガチャロジック ===== */
-function draw(n) {
-    const resultDiv = document.getElementById("result");
-    resultDiv.innerHTML = ""; // 画面を一度クリア
-
-    for (let i = 0; i < n; i++) {
-        const p = players[Math.floor(Math.random() * players.length)];
-        resultDiv.innerHTML += createCardHTML(p);
-        saveToCollection(p.name);
-    }
-}
-
-function createCardHTML(p) {
-    return `
-        <div class="card star${p.rarity}">
-            <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}&background=random&color=fff">
-            <div class="ovr">${p.ovr}</div>
-            <h3>${p.name}</h3>
-            <div class="info">${p.nation} ${p.club} | ${p.pos}</div>
-            <div class="stats-grid">
-                <div class="stat-item">SPD: ${p.spd}</div>
-                <div class="stat-item">SHT: ${p.sht}</div>
-                <div class="stat-item">PAS: ${p.pas}</div>
-                <div class="stat-item">DRI: ${p.dri}</div>
-                <div class="stat-item">DEF: ${p.def}</div>
-                <div class="stat-item">PHY: ${p.phy}</div>
-            </div>
-        </div>
-    `;
-}
-
-/* ===== 保存・コレクション ===== */
-// Setを使って重複を防ぐ
-let col = new Set(JSON.parse(localStorage.getItem("football_col")) || []);
-
-function saveToCollection(name) {
-    col.add(name);
-    localStorage.setItem("football_col", JSON.stringify(Array.from(col)));
-    renderCollection();
-}
-
-function renderCollection() {
-    const c = document.getElementById("collection");
-    c.innerHTML = "";
-    // アルファベット順に並び替えて表示
-    Array.from(col).sort().forEach(n => {
-        c.innerHTML += `<div class="item">${n}</div>`;
-    });
-}
-
-// 起動時にコレクションを表示
-renderCollection();
-</script>
-
-</body>
-</html>
+    // 日本代表 (Samurai Blue - 2026 WC Squad)
+    {name:"W. Endo", club:"Liverpool", nation:"🇯🇵", pos:"DM", ovr:83, rarity:3},
+    {name:"T. Tomiyasu", club:"Arsenal", nation:"🇯🇵", pos:"CB", ovr:84, rarity:4},
+    {name:"H. Ito", club:"Bayern", nation:"🇯🇵", pos:"CB", ovr:82, rarity:3},
+    {name:"K. Itakura", club:"Mönchengladbach", nation:"🇯🇵", pos:"CB", ovr:82, rarity:3},
+    {name:"Y. Sugawara", club:"Southampton", nation:"🇯🇵", pos:"RB", ovr:81, rarity:3},
+    {name:"K. Machida", club:"Union SG", nation:"🇯🇵", pos:"CB", ovr:81, rarity:3},
+    {name:"H. Morita", club:"Sporting CP", nation:"🇯🇵", pos:"CM", ovr:83, rarity:3},
+    {name:"A. Tanaka", club:"Leeds", nation:"🇯🇵", pos:"CM", ovr:80, rarity:3},
+    {name:"R. Doan", club:"Freiburg", nation:"🇯
