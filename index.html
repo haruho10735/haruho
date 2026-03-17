@@ -1,505 +1,219 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Real Football Gacha</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real Football Gacha</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background: #061426;
+            color: white;
+            text-align: center;
+            padding-bottom: 50px;
+        }
 
-<style>
-body{
-margin:0;
-font-family:sans-serif;
-background:#061426;
-color:white;
-text-align:center;
-}
+        .header {
+            background: linear-gradient(180deg, #001b3a 0%, #000c1a 100%);
+            padding: 20px;
+            font-size: 24px;
+            font-weight: bold;
+            border-bottom: 2px solid #00d0ff;
+            margin-bottom: 20px;
+        }
 
-.header{
-background:#001b3a;
-padding:12px;
-font-size:18px;
-}
+        .controls {
+            margin: 20px 0;
+        }
 
-button{
-padding:10px 15px;
-margin:5px;
-border:none;
-border-radius:8px;
-}
+        button {
+            padding: 12px 25px;
+            margin: 5px;
+            border: none;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.2s;
+        }
 
-.single{background:gold;}
-.ten{background:#00d0ff;}
+        button:active { transform: scale(0.95); }
 
-.card{
-width:260px;
-margin:15px auto;
-background:#111;
-border-radius:15px;
-padding:10px;
-}
+        .single { background: #ffd700; color: #333; box-shadow: 0 4px 0 #b8860b; }
+        .ten { background: #00d0ff; color: white; box-shadow: 0 4px 0 #008ebf; }
 
-.card img{
-width:120px;
-border-radius:50%;
-}
+        #result {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            padding: 20px;
+            min-height: 300px;
+        }
 
-.star5{border:3px solid gold;}
-.star4{border:3px solid #00e5ff;}
-.star3{border:3px solid gray;}
+        /* カードデザイン */
+        .card {
+            width: 200px;
+            background: #111;
+            border-radius: 15px;
+            padding: 15px;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #333;
+            transition: all 0.3s ease;
+        }
 
-.stat{
-font-size:13px;
-}
+        .card img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #222;
+            margin-bottom: 10px;
+        }
 
-#collection{
-display:flex;
-flex-wrap:wrap;
-gap:5px;
-justify-content:center;
-}
+        /* レアリティ別演出 */
+        .star5 { border-color: gold; box-shadow: 0 0 15px gold; background: linear-gradient(135deg, #111 0%, #2a2200 100%); }
+        .star4 { border-color: #00e5ff; box-shadow: 0 0 10px #00e5ff; }
+        .star3 { border-color: #888; }
 
-.item{
-background:#111;
-padding:4px;
-font-size:10px;
-border-radius:4px;
-}
+        .card h3 { margin: 10px 0 5px; font-size: 16px; }
+        .card .info { font-size: 12px; color: #aaa; margin-bottom: 10px; }
+        .card .ovr { font-size: 20px; font-weight: bold; color: gold; }
 
-</style>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px;
+            font-size: 11px;
+            margin-top: 10px;
+            text-align: left;
+        }
+
+        .stat-item { border-bottom: 1px solid #222; padding: 2px; }
+
+        /* コレクションセクション */
+        .coll-title {
+            margin-top: 40px;
+            padding: 10px;
+            background: #001b3a;
+        }
+
+        #collection {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .item {
+            background: #1a1a1a;
+            padding: 5px 12px;
+            font-size: 12px;
+            border-radius: 20px;
+            border: 1px solid #333;
+            color: #ddd;
+        }
+    </style>
 </head>
 
 <body>
 
 <div class="header">⚽ Real Player Gacha</div>
 
-<button class="single" onclick="draw(1)">1回</button>
-<button class="ten" onclick="draw(10)">10連</button>
+<div class="controls">
+    <button class="single" onclick="draw(1)">1回引く</button>
+    <button class="ten" onclick="draw(10)">10連ガチャ</button>
+</div>
 
 <div id="result"></div>
 
-<h3>コレクション</h3>
+<div class="coll-title">獲得済み選手（図鑑）</div>
 <div id="collection"></div>
 
 <script>
-
-/* ===== 実在選手データ ===== */
-
-<script>
-
-/* ===== 実在選手500人データ ===== */
-<script>
-
-let players = [
-
-/* ===== ★5（トップスター） ===== */
-
-{name:"Lionel Messi",club:"Inter Miami",nation:"🇦🇷",pos:"RW",ovr:95,spd:85,sht:92,pas:95,dri:97,def:38,phy:65,rarity:5},
-{name:"Cristiano Ronaldo",club:"Al Nassr",nation:"🇵🇹",pos:"ST",ovr:94,spd:83,sht:94,pas:80,dri:88,def:35,phy:78,rarity:5},
-{name:"Kylian Mbappé",club:"PSG",nation:"🇫🇷",pos:"ST",ovr:93,spd:97,sht:90,pas:80,dri:92,def:36,phy:76,rarity:5},
-{name:"Erling Haaland",club:"Man City",nation:"🇳🇴",pos:"ST",ovr:92,spd:89,sht:96,pas:75,dri:85,def:45,phy:90,rarity:5},
-{name:"Kevin De Bruyne",club:"Man City",nation:"🇧🇪",pos:"AMF",ovr:91,spd:75,sht:86,pas:94,dri:88,def:60,phy:78,rarity:5},
-{name:"Jude Bellingham",club:"Real Madrid",nation:"🏴",pos:"CMF",ovr:91,spd:80,sht:85,pas:87,dri:88,def:78,phy:85,rarity:5},
-{name:"Vinicius Jr",club:"Real Madrid",nation:"🇧🇷",pos:"LW",ovr:90,spd:95,sht:85,pas:80,dri:94,def:40,phy:70,rarity:5},
-{name:"Harry Kane",club:"Bayern",nation:"🏴",pos:"ST",ovr:91,spd:75,sht:92,pas:83,dri:82,def:50,phy:85,rarity:5},
-{name:"Robert Lewandowski",club:"Barcelona",nation:"🇵🇱",pos:"ST",ovr:91,spd:78,sht:93,pas:80,dri:85,def:45,phy:84,rarity:5},
-{name:"Mohamed Salah",club:"Liverpool",nation:"🇪🇬",pos:"RW",ovr:90,spd:92,sht:88,pas:82,dri:90,def:50,phy:75,rarity:5},
-
-/* ===== プレミアリーグ ===== */
-
-{name:"Bukayo Saka",club:"Arsenal",nation:"🏴",pos:"RW",ovr:88,spd:88,sht:83,pas:82,dri:90,def:60,phy:70,rarity:4},
-{name:"Martin Ødegaard",club:"Arsenal",nation:"🇳🇴",pos:"AMF",ovr:87,spd:78,sht:80,pas:88,dri:87,def:65,phy:68,rarity:4},
-{name:"Declan Rice",club:"Arsenal",nation:"🏴",pos:"DMF",ovr:87,spd:75,sht:75,pas:82,dri:80,def:88,phy:85,rarity:4},
-{name:"Gabriel Jesus",club:"Arsenal",nation:"🇧🇷",pos:"ST",ovr:84,spd:85,sht:80,pas:75,dri:85,def:50,phy:70,rarity:4},
-{name:"Phil Foden",club:"Man City",nation:"🏴",pos:"AMF",ovr:88,spd:85,sht:82,pas:85,dri:90,def:55,phy:65,rarity:4},
-{name:"Rodri",club:"Man City",nation:"🇪🇸",pos:"DMF",ovr:89,spd:70,sht:80,pas:88,dri:82,def:90,phy:88,rarity:4},
-{name:"Jack Grealish",club:"Man City",nation:"🏴",pos:"LW",ovr:85,spd:80,sht:78,pas:82,dri:88,def:50,phy:70,rarity:4},
-{name:"Marcus Rashford",club:"Man United",nation:"🏴",pos:"LW",ovr:87,spd:92,sht:85,pas:78,dri:88,def:45,phy:75,rarity:4},
-{name:"Bruno Fernandes",club:"Man United",nation:"🇵🇹",pos:"AMF",ovr:88,spd:75,sht:85,pas:90,dri:84,def:65,phy:70,rarity:4},
-{name:"Casemiro",club:"Man United",nation:"🇧🇷",pos:"DMF",ovr:86,spd:65,sht:75,pas:80,dri:75,def:88,phy:85,rarity:4},
-{name:"Son Heung-min",club:"Tottenham",nation:"🇰🇷",pos:"LW",ovr:89,spd:90,sht:88,pas:80,dri:85,def:50,phy:75,rarity:4},
-{name:"James Maddison",club:"Tottenham",nation:"🏴",pos:"AMF",ovr:85,spd:75,sht:80,pas:85,dri:84,def:55,phy:65,rarity:4},
-{name:"Mohamed Salah",club:"Liverpool",nation:"🇪🇬",pos:"RW",ovr:90,spd:92,sht:88,pas:82,dri:90,def:50,phy:75,rarity:5},
-{name:"Virgil van Dijk",club:"Liverpool",nation:"🇳🇱",pos:"CB",ovr:89,spd:78,sht:60,pas:75,dri:70,def:92,phy:90,rarity:4},
-{name:"Alisson Becker",club:"Liverpool",nation:"🇧🇷",pos:"GK",ovr:90,spd:60,sht:40,pas:75,dri:60,def:90,phy:85,rarity:4},
-
-/* ===== ラ・リーガ ===== */
-
-{name:"Pedri",club:"Barcelona",nation:"🇪🇸",pos:"CMF",ovr:86,spd:80,sht:75,pas:88,dri:90,def:65,phy:70,rarity:4},
-{name:"Gavi",club:"Barcelona",nation:"🇪🇸",pos:"CMF",ovr:83,spd:78,sht:70,pas:82,dri:85,def:75,phy:70,rarity:3},
-{name:"Frenkie de Jong",club:"Barcelona",nation:"🇳🇱",pos:"CMF",ovr:87,spd:80,sht:75,pas:88,dri:88,def:78,phy:75,rarity:4},
-{name:"Ter Stegen",club:"Barcelona",nation:"🇩🇪",pos:"GK",ovr:89,spd:60,sht:40,pas:78,dri:65,def:90,phy:80,rarity:4},
-{name:"Karim Benzema",club:"Al Ittihad",nation:"🇫🇷",pos:"ST",ovr:90,spd:78,sht:90,pas:85,dri:87,def:45,phy:82,rarity:5},
-{name:"Luka Modric",club:"Real Madrid",nation:"🇭🇷",pos:"CMF",ovr:88,spd:75,sht:78,pas:90,dri:88,def:70,phy:65,rarity:4},
-{name:"Toni Kroos",club:"Real Madrid",nation:"🇩🇪",pos:"CMF",ovr:88,spd:65,sht:80,pas:92,dri:82,def:70,phy:70,rarity:4},
-{name:"Antonio Rudiger",club:"Real Madrid",nation:"🇩🇪",pos:"CB",ovr:87,spd:80,sht:60,pas:75,dri:70,def:88,phy:88,rarity:4},
-
-/* ===== セリエA ===== */
-
-{name:"Lautaro Martinez",club:"Inter",nation:"🇦🇷",pos:"ST",ovr:88,spd:85,sht:88,pas:75,dri:85,def:45,phy:80,rarity:4},
-{name:"Nicolo Barella",club:"Inter",nation:"🇮🇹",pos:"CMF",ovr:87,spd:80,sht:78,pas:85,dri:85,def:80,phy:78,rarity:4},
-{name:"Rafael Leao",club:"Milan",nation:"🇵🇹",pos:"LW",ovr:87,spd:92,sht:85,pas:78,dri:90,def:40,phy:75,rarity:4},
-
-/* ===== ブンデスリーガ ===== */
-
-{name:"Jamal Musiala",club:"Bayern",nation:"🇩🇪",pos:"AMF",ovr:87,spd:85,sht:80,pas:82,dri:92,def:55,phy:65,rarity:4},
-{name:"Joshua Kimmich",club:"Bayern",nation:"🇩🇪",pos:"DMF",ovr:88,spd:75,sht:80,pas:88,dri:85,def:85,phy:78,rarity:4},
-{name:"Alphonso Davies",club:"Bayern",nation:"🇨🇦",pos:"LB",ovr:85,spd:95,sht:70,pas:78,dri:85,def:78,phy:80,rarity:4},
-
-/* ===== 日本代表 ===== */
-
-{name:"Kaoru Mitoma",club:"Brighton",nation:"🇯🇵",pos:"LW",ovr:82,spd:90,sht:75,pas:78,dri:88,def:50,phy:65,rarity:3},
-{name:"Takefusa Kubo",club:"Sociedad",nation:"🇯🇵",pos:"RW",ovr:82,spd:85,sht:78,pas:80,dri:88,def:55,phy:60,rarity:3},
-{name:"Wataru Endo",club:"Liverpool",nation:"🇯🇵",pos:"DMF",ovr:80,spd:70,sht:65,pas:75,dri:70,def:85,phy:82,rarity:3},
-{name:"Daichi Kamada",club:"Lazio",nation:"🇯🇵",pos:"AMF",ovr:80,spd:75,sht:78,pas:80,dri:82,def:60,phy:68,rarity:3},
-
-]
-
-
-/* ===== 追加100人（完全実在） ===== */
-
-players.push(
-
-/* ===== プレミアリーグ追加 ===== */
-
-{name:"Enzo Fernández",club:"Chelsea",nation:"🇦🇷",pos:"CMF",ovr:84,spd:75,sht:75,pas:85,dri:82,def:75,phy:78,rarity:4},
-{name:"Moisés Caicedo",club:"Chelsea",nation:"🇪🇨",pos:"DMF",ovr:83,spd:78,sht:70,pas:78,dri:80,def:85,phy:85,rarity:4},
-{name:"Reece James",club:"Chelsea",nation:"🏴",pos:"RB",ovr:84,spd:82,sht:75,pas:80,dri:78,def:82,phy:85,rarity:4},
-{name:"Thiago Silva",club:"Chelsea",nation:"🇧🇷",pos:"CB",ovr:85,spd:60,sht:50,pas:78,dri:70,def:88,phy:75,rarity:4},
-
-{name:"Darwin Núñez",club:"Liverpool",nation:"🇺🇾",pos:"ST",ovr:84,spd:90,sht:85,pas:70,dri:80,def:45,phy:85,rarity:4},
-{name:"Luis Díaz",club:"Liverpool",nation:"🇨🇴",pos:"LW",ovr:85,spd:90,sht:82,pas:78,dri:88,def:50,phy:75,rarity:4},
-{name:"Trent Alexander-Arnold",club:"Liverpool",nation:"🏴",pos:"RB",ovr:87,spd:75,sht:75,pas:92,dri:82,def:75,phy:70,rarity:4},
-
-{name:"Gabriel Martinelli",club:"Arsenal",nation:"🇧🇷",pos:"LW",ovr:84,spd:90,sht:82,pas:75,dri:88,def:55,phy:72,rarity:4},
-{name:"William Saliba",club:"Arsenal",nation:"🇫🇷",pos:"CB",ovr:85,spd:80,sht:60,pas:75,dri:75,def:88,phy:85,rarity:4},
-
-{name:"Dominic Szoboszlai",club:"Liverpool",nation:"🇭🇺",pos:"AMF",ovr:85,spd:80,sht:85,pas:88,dri:82,def:65,phy:75,rarity:4},
-
-/* ===== ラ・リーガ追加 ===== */
-
-{name:"Federico Valverde",club:"Real Madrid",nation:"🇺🇾",pos:"CMF",ovr:88,spd:85,sht:85,pas:82,dri:85,def:80,phy:88,rarity:4},
-{name:"Eduardo Camavinga",club:"Real Madrid",nation:"🇫🇷",pos:"CMF",ovr:84,spd:80,sht:75,pas:82,dri:85,def:80,phy:80,rarity:4},
-{name:"Aurélien Tchouaméni",club:"Real Madrid",nation:"🇫🇷",pos:"DMF",ovr:85,spd:75,sht:75,pas:80,dri:78,def:85,phy:88,rarity:4},
-
-{name:"João Félix",club:"Barcelona",nation:"🇵🇹",pos:"CF",ovr:84,spd:85,sht:82,pas:80,dri:88,def:40,phy:65,rarity:4},
-{name:"Raphinha",club:"Barcelona",nation:"🇧🇷",pos:"RW",ovr:84,spd:88,sht:82,pas:80,dri:87,def:50,phy:70,rarity:4},
-
-{name:"Antoine Griezmann",club:"Atletico Madrid",nation:"🇫🇷",pos:"CF",ovr:88,spd:78,sht:85,pas:88,dri:87,def:65,phy:70,rarity:4},
-{name:"Jan Oblak",club:"Atletico Madrid",nation:"🇸🇮",pos:"GK",ovr:89,spd:60,sht:40,pas:75,dri:60,def:90,phy:85,rarity:4},
-
-/* ===== セリエA追加 ===== */
-
-{name:"Victor Osimhen",club:"Napoli",nation:"🇳🇬",pos:"ST",ovr:88,spd:92,sht:88,pas:70,dri:82,def:45,phy:88,rarity:4},
-{name:"Khvicha Kvaratskhelia",club:"Napoli",nation:"🇬🇪",pos:"LW",ovr:86,spd:88,sht:82,pas:80,dri:90,def:45,phy:70,rarity:4},
-
-{name:"Dusan Vlahovic",club:"Juventus",nation:"🇷🇸",pos:"ST",ovr:86,spd:80,sht:88,pas:70,dri:80,def:40,phy:85,rarity:4},
-{name:"Federico Chiesa",club:"Juventus",nation:"🇮🇹",pos:"RW",ovr:85,spd:90,sht:85,pas:75,dri:88,def:50,phy:75,rarity:4},
-
-{name:"Paulo Dybala",club:"Roma",nation:"🇦🇷",pos:"CF",ovr:86,spd:80,sht:85,pas:85,dri:90,def:45,phy:65,rarity:4},
-
-/* ===== ブンデスリーガ追加 ===== */
-
-{name:"Leroy Sané",club:"Bayern",nation:"🇩🇪",pos:"RW",ovr:86,spd:92,sht:85,pas:80,dri:88,def:45,phy:70,rarity:4},
-{name:"Serge Gnabry",club:"Bayern",nation:"🇩🇪",pos:"RW",ovr:85,spd:88,sht:84,pas:80,dri:86,def:45,phy:72,rarity:4},
-
-{name:"Florian Wirtz",club:"Leverkusen",nation:"🇩🇪",pos:"AMF",ovr:85,spd:82,sht:80,pas:85,dri:90,def:50,phy:65,rarity:4},
-
-/* ===== その他スター ===== */
-
-{name:"Zlatan Ibrahimović",club:"Retired",nation:"🇸🇪",pos:"ST",ovr:88,spd:75,sht:90,pas:80,dri:85,def:40,phy:88,rarity:4},
-{name:"Sergio Ramos",club:"Sevilla",nation:"🇪🇸",pos:"CB",ovr:84,spd:70,sht:70,pas:78,dri:70,def:85,phy:85,rarity:4},
-
-/* ===== GK強化 ===== */
-
-{name:"Thibaut Courtois",club:"Real Madrid",nation:"🇧🇪",pos:"GK",ovr:90,spd:60,sht:40,pas:75,dri:60,def:92,phy:88,rarity:5},
-{name:"Ederson",club:"Man City",nation:"🇧🇷",pos:"GK",ovr:89,spd:65,sht:40,pas:85,dri:70,def:88,phy:80,rarity:4}
-
-);
-
-<script>
-
-players.push(
-
-/* ===== プレミアリーグ ===== */
-
-{name:"Mason Mount",club:"Man United",nation:"🏴",pos:"AMF",ovr:83,spd:78,sht:80,pas:82,dri:82,def:65,phy:70,rarity:4},
-{name:"Antony",club:"Man United",nation:"🇧🇷",pos:"RW",ovr:82,spd:85,sht:78,pas:75,dri:88,def:45,phy:65,rarity:3},
-{name:"Lisandro Martínez",club:"Man United",nation:"🇦🇷",pos:"CB",ovr:84,spd:75,sht:60,pas:80,dri:75,def:88,phy:80,rarity:4},
-
-{name:"Kai Havertz",club:"Arsenal",nation:"🇩🇪",pos:"CF",ovr:83,spd:75,sht:80,pas:80,dri:82,def:60,phy:75,rarity:4},
-{name:"Ben White",club:"Arsenal",nation:"🏴",pos:"RB",ovr:83,spd:78,sht:60,pas:75,dri:75,def:85,phy:80,rarity:4},
-
-{name:"Raheem Sterling",club:"Chelsea",nation:"🏴",pos:"LW",ovr:83,spd:90,sht:80,pas:75,dri:88,def:45,phy:65,rarity:4},
-{name:"Cole Palmer",club:"Chelsea",nation:"🏴",pos:"AMF",ovr:82,spd:80,sht:78,pas:82,dri:85,def:55,phy:65,rarity:3},
-
-{name:"James Ward-Prowse",club:"West Ham",nation:"🏴",pos:"CMF",ovr:83,spd:65,sht:80,pas:88,dri:75,def:70,phy:75,rarity:4},
-
-{name:"Jarrod Bowen",club:"West Ham",nation:"🏴",pos:"RW",ovr:84,spd:85,sht:82,pas:78,dri:84,def:60,phy:75,rarity:4},
-
-{name:"Alexander Isak",club:"Newcastle",nation:"🇸🇪",pos:"ST",ovr:85,spd:88,sht:85,pas:75,dri:85,def:45,phy:75,rarity:4},
-
-{name:"Bruno Guimarães",club:"Newcastle",nation:"🇧🇷",pos:"CMF",ovr:85,spd:75,sht:80,pas:85,dri:85,def:80,phy:78,rarity:4},
-
-{name:"Richarlison",club:"Tottenham",nation:"🇧🇷",pos:"ST",ovr:83,spd:85,sht:82,pas:70,dri:82,def:50,phy:80,rarity:3},
-
-{name:"Dejan Kulusevski",club:"Tottenham",nation:"🇸🇪",pos:"RW",ovr:83,spd:80,sht:80,pas:82,dri:85,def:55,phy:78,rarity:3},
-
-/* ===== ラ・リーガ ===== */
-
-{name:"Rodrygo",club:"Real Madrid",nation:"🇧🇷",pos:"RW",ovr:87,spd:90,sht:85,pas:82,dri:90,def:50,phy:70,rarity:4},
-{name:"Nacho Fernández",club:"Real Madrid",nation:"🇪🇸",pos:"CB",ovr:82,spd:70,sht:60,pas:75,dri:70,def:85,phy:80,rarity:3},
-
-{name:"Alejandro Balde",club:"Barcelona",nation:"🇪🇸",pos:"LB",ovr:82,spd:90,sht:65,pas:75,dri:82,def:78,phy:70,rarity:3},
-{name:"Ilkay Gündogan",club:"Barcelona",nation:"🇩🇪",pos:"CMF",ovr:86,spd:70,sht:85,pas:88,dri:85,def:70,phy:75,rarity:4},
-
-{name:"Nahuel Molina",club:"Atletico Madrid",nation:"🇦🇷",pos:"RB",ovr:83,spd:85,sht:70,pas:75,dri:78,def:82,phy:80,rarity:3},
-
-/* ===== セリエA ===== */
-
-{name:"Hakan Çalhanoğlu",club:"Inter",nation:"🇹🇷",pos:"CMF",ovr:85,spd:75,sht:82,pas:88,dri:82,def:70,phy:75,rarity:4},
-{name:"Alessandro Bastoni",club:"Inter",nation:"🇮🇹",pos:"CB",ovr:85,spd:75,sht:60,pas:82,dri:75,def:88,phy:82,rarity:4},
-
-{name:"Theo Hernández",club:"Milan",nation:"🇫🇷",pos:"LB",ovr:86,spd:92,sht:78,pas:80,dri:85,def:82,phy:85,rarity:4},
-{name:"Mike Maignan",club:"Milan",nation:"🇫🇷",pos:"GK",ovr:87,spd:60,sht:40,pas:75,dri:60,def:90,phy:82,rarity:4},
-
-{name:"Manuel Locatelli",club:"Juventus",nation:"🇮🇹",pos:"CMF",ovr:83,spd:70,sht:75,pas:82,dri:78,def:82,phy:80,rarity:3},
-
-/* ===== ブンデス ===== */
-
-{name:"Niclas Füllkrug",club:"Dortmund",nation:"🇩🇪",pos:"ST",ovr:83,spd:70,sht:85,pas:70,dri:75,def:40,phy:85,rarity:3},
-{name:"Marco Reus",club:"Dortmund",nation:"🇩🇪",pos:"AMF",ovr:85,spd:78,sht:85,pas:85,dri:88,def:50,phy:65,rarity:4},
-
-{name:"Christopher Nkunku",club:"Chelsea",nation:"🇫🇷",pos:"CF",ovr:86,spd:85,sht:85,pas:82,dri:88,def:50,phy:70,rarity:4},
-
-/* ===== フランス・PSG ===== */
-
-{name:"Achraf Hakimi",club:"PSG",nation:"🇲🇦",pos:"RB",ovr:86,spd:95,sht:75,pas:80,dri:85,def:80,phy:75,rarity:4},
-{name:"Marquinhos",club:"PSG",nation:"🇧🇷",pos:"CB",ovr:87,spd:78,sht:60,pas:82,dri:75,def:90,phy:82,rarity:4},
-
-/* ===== GK・DF追加 ===== */
-
-{name:"Gianluigi Donnarumma",club:"PSG",nation:"🇮🇹",pos:"GK",ovr:89,spd:60,sht:40,pas:70,dri:60,def:90,phy:85,rarity:4},
-{name:"Aaron Ramsdale",club:"Arsenal",nation:"🏴",pos:"GK",ovr:84,spd:60,sht:40,pas:75,dri:60,def:85,phy:80,rarity:3},
-
-{name:"Kalidou Koulibaly",club:"Al Hilal",nation:"🇸🇳",pos:"CB",ovr:84,spd:75,sht:60,pas:75,dri:70,def:88,phy:88,rarity:4},
-
-{name:"Raphaël Varane",club:"Man United",nation:"🇫🇷",pos:"CB",ovr:85,spd:78,sht:60,pas:75,dri:70,def:88,phy:82,rarity:4},
-
-{name:"Aymeric Laporte",club:"Al Nassr",nation:"🇪🇸",pos:"CB",ovr:84,spd:75,sht:60,pas:80,dri:75,def:87,phy:82,rarity:4}
-
-);
-
-
-players.push(
-
-/* ===== プレミアリーグ ===== */
-
-{name:"Jordan Pickford",club:"Everton",nation:"🏴",pos:"GK",ovr:83,spd:60,sht:40,pas:75,dri:60,def:85,phy:78,rarity:3},
-{name:"Dominic Calvert-Lewin",club:"Everton",nation:"🏴",pos:"ST",ovr:82,spd:82,sht:82,pas:70,dri:78,def:45,phy:85,rarity:3},
-
-{name:"Eberechi Eze",club:"Crystal Palace",nation:"🏴",pos:"AMF",ovr:83,spd:85,sht:80,pas:82,dri:88,def:50,phy:70,rarity:3},
-{name:"Michael Olise",club:"Crystal Palace",nation:"🇫🇷",pos:"RW",ovr:83,spd:82,sht:78,pas:85,dri:88,def:45,phy:68,rarity:3},
-
-{name:"João Palhinha",club:"Fulham",nation:"🇵🇹",pos:"DMF",ovr:84,spd:70,sht:70,pas:75,dri:75,def:90,phy:88,rarity:4},
-
-{name:"James Tarkowski",club:"Everton",nation:"🏴",pos:"CB",ovr:82,spd:65,sht:60,pas:70,dri:65,def:85,phy:85,rarity:3},
-
-{name:"Pervis Estupiñán",club:"Brighton",nation:"🇪🇨",pos:"LB",ovr:83,spd:88,sht:70,pas:78,dri:82,def:80,phy:78,rarity:3},
-{name:"Lewis Dunk",club:"Brighton",nation:"🏴",pos:"CB",ovr:83,spd:65,sht:60,pas:75,dri:70,def:85,phy:85,rarity:3},
-
-{name:"Morgan Gibbs-White",club:"Nottingham Forest",nation:"🏴",pos:"AMF",ovr:82,spd:82,sht:78,pas:82,dri:85,def:60,phy:70,rarity:3},
-
-{name:"Matheus Cunha",club:"Wolves",nation:"🇧🇷",pos:"CF",ovr:83,spd:85,sht:82,pas:78,dri:85,def:50,phy:75,rarity:3},
-
-/* ===== ラ・リーガ ===== */
-
-{name:"Iago Aspas",club:"Celta Vigo",nation:"🇪🇸",pos:"ST",ovr:84,spd:75,sht:85,pas:82,dri:84,def:45,phy:70,rarity:4},
-{name:"Mikel Oyarzabal",club:"Real Sociedad",nation:"🇪🇸",pos:"LW",ovr:85,spd:80,sht:85,pas:82,dri:85,def:60,phy:75,rarity:4},
-
-{name:"David Silva",club:"Retired",nation:"🇪🇸",pos:"AMF",ovr:88,spd:75,sht:82,pas:92,dri:90,def:50,phy:60,rarity:4},
-
-{name:"Gerard Moreno",club:"Villarreal",nation:"🇪🇸",pos:"ST",ovr:84,spd:78,sht:85,pas:82,dri:84,def:50,phy:72,rarity:4},
-
-{name:"Youssef En-Nesyri",club:"Sevilla",nation:"🇲🇦",pos:"ST",ovr:83,spd:85,sht:84,pas:70,dri:78,def:45,phy:82,rarity:3},
-
-/* ===== セリエA ===== */
-
-{name:"Ciro Immobile",club:"Lazio",nation:"🇮🇹",pos:"ST",ovr:86,spd:82,sht:88,pas:75,dri:82,def:40,phy:78,rarity:4},
-{name:"Sergej Milinković-Savić",club:"Al Hilal",nation:"🇷🇸",pos:"CMF",ovr:86,spd:75,sht:85,pas:85,dri:82,def:75,phy:88,rarity:4},
-
-{name:"Gianluca Scamacca",club:"Atalanta",nation:"🇮🇹",pos:"ST",ovr:83,spd:75,sht:85,pas:72,dri:78,def:40,phy:85,rarity:3},
-
-{name:"Teun Koopmeiners",club:"Atalanta",nation:"🇳🇱",pos:"CMF",ovr:84,spd:75,sht:82,pas:85,dri:80,def:80,phy:80,rarity:4},
-
-{name:"Adrien Rabiot",club:"Juventus",nation:"🇫🇷",pos:"CMF",ovr:84,spd:75,sht:80,pas:82,dri:80,def:80,phy:85,rarity:4},
-
-/* ===== ブンデス ===== */
-
-{name:"Julian Brandt",club:"Dortmund",nation:"🇩🇪",pos:"AMF",ovr:84,spd:78,sht:82,pas:85,dri:85,def:60,phy:70,rarity:4},
-
-{name:"Gregor Kobel",club:"Dortmund",nation:"🇨🇭",pos:"GK",ovr:85,spd:60,sht:40,pas:75,dri:60,def:88,phy:82,rarity:4},
-
-{name:"Xavi Simons",club:"Leipzig",nation:"🇳🇱",pos:"AMF",ovr:84,spd:85,sht:82,pas:85,dri:90,def:55,phy:70,rarity:4},
-
-/* ===== その他 ===== */
-
-{name:"Angel Di María",club:"Benfica",nation:"🇦🇷",pos:"RW",ovr:85,spd:82,sht:84,pas:88,dri:88,def:50,phy:65,rarity:4},
-{name:"Edin Džeko",club:"Fenerbahçe",nation:"🇧🇦",pos:"ST",ovr:84,spd:70,sht:85,pas:78,dri:80,def:45,phy:85,rarity:4},
-
-{name:"Christian Eriksen",club:"Man United",nation:"🇩🇰",pos:"CMF",ovr:84,spd:70,sht:80,pas:90,dri:82,def:60,phy:65,rarity:4},
-
-{name:"Memphis Depay",club:"Atletico Madrid",nation:"🇳🇱",pos:"CF",ovr:84,spd:82,sht:85,pas:82,dri:85,def:45,phy:78,rarity:4},
-
-{name:"Hakim Ziyech",club:"Galatasaray",nation:"🇲🇦",pos:"RW",ovr:83,spd:78,sht:82,pas:88,dri:85,def:50,phy:65,rarity:3},
-
-/* ===== GK追加 ===== */
-
-{name:"Yassine Bounou",club:"Al Hilal",nation:"🇲🇦",pos:"GK",ovr:86,spd:60,sht:40,pas:75,dri:60,def:90,phy:85,rarity:4},
-{name:"Emiliano Martínez",club:"Aston Villa",nation:"🇦🇷",pos:"GK",ovr:86,spd:60,sht:40,pas:75,dri:60,def:90,phy:85,rarity:4},
-
-{name:"Unai Simón",club:"Athletic Club",nation:"🇪🇸",pos:"GK",ovr:85,spd:60,sht:40,pas:75,dri:60,def:88,phy:82,rarity:4}
-
-);
-
-players.push(
-
-/* ===== プレミア・その他 ===== */
-
-{name:"Ollie Watkins",club:"Aston Villa",nation:"🏴",pos:"ST",ovr:84,spd:88,sht:84,pas:75,dri:82,def:50,phy:78,rarity:4},
-{name:"Douglas Luiz",club:"Aston Villa",nation:"🇧🇷",pos:"CMF",ovr:84,spd:75,sht:80,pas:85,dri:82,def:78,phy:80,rarity:4},
-{name:"Leon Bailey",club:"Aston Villa",nation:"🇯🇲",pos:"RW",ovr:83,spd:90,sht:80,pas:75,dri:85,def:45,phy:70,rarity:3},
-
-{name:"Callum Wilson",club:"Newcastle",nation:"🏴",pos:"ST",ovr:83,spd:85,sht:84,pas:70,dri:80,def:45,phy:78,rarity:3},
-{name:"Kieran Trippier",club:"Newcastle",nation:"🏴",pos:"RB",ovr:84,spd:75,sht:75,pas:88,dri:80,def:82,phy:75,rarity:4},
-
-{name:"James Maddison",club:"Tottenham",nation:"🏴",pos:"AMF",ovr:85,spd:78,sht:82,pas:88,dri:85,def:55,phy:70,rarity:4},
-
-{name:"Yves Bissouma",club:"Tottenham",nation:"🇲🇱",pos:"DMF",ovr:83,spd:78,sht:70,pas:78,dri:80,def:85,phy:85,rarity:3},
-
-{name:"Pedro Neto",club:"Wolves",nation:"🇵🇹",pos:"RW",ovr:83,spd:90,sht:78,pas:80,dri:88,def:45,phy:68,rarity:3},
-
-/* ===== ラ・リーガ ===== */
-
-{name:"Take Kubo",club:"Real Sociedad",nation:"🇯🇵",pos:"RW",ovr:84,spd:85,sht:80,pas:82,dri:90,def:55,phy:65,rarity:4},
-{name:"Brais Méndez",club:"Real Sociedad",nation:"🇪🇸",pos:"AMF",ovr:83,spd:75,sht:80,pas:85,dri:82,def:65,phy:72,rarity:3},
-
-{name:"Isco",club:"Real Betis",nation:"🇪🇸",pos:"AMF",ovr:84,spd:75,sht:80,pas:88,dri:90,def:55,phy:65,rarity:4},
-
-{name:"Nabil Fekir",club:"Real Betis",nation:"🇫🇷",pos:"AMF",ovr:84,spd:78,sht:82,pas:85,dri:88,def:55,phy:70,rarity:4},
-
-{name:"Joselu",club:"Real Madrid",nation:"🇪🇸",pos:"ST",ovr:83,spd:70,sht:85,pas:72,dri:75,def:45,phy:85,rarity:3},
-
-/* ===== セリエA ===== */
-
-{name:"Lorenzo Pellegrini",club:"Roma",nation:"🇮🇹",pos:"CMF",ovr:84,spd:75,sht:82,pas:85,dri:82,def:70,phy:75,rarity:4},
-{name:"Chris Smalling",club:"Roma",nation:"🏴",pos:"CB",ovr:83,spd:70,sht:60,pas:72,dri:70,def:85,phy:85,rarity:3},
-
-{name:"Stefan de Vrij",club:"Inter",nation:"🇳🇱",pos:"CB",ovr:84,spd:70,sht:60,pas:75,dri:70,def:88,phy:82,rarity:4},
-
-{name:"Henrikh Mkhitaryan",club:"Inter",nation:"🇦🇲",pos:"AMF",ovr:83,spd:75,sht:80,pas:85,dri:82,def:65,phy:70,rarity:3},
-
-{name:"Rade Krunić",club:"Milan",nation:"🇧🇦",pos:"CMF",ovr:80,spd:70,sht:70,pas:75,dri:75,def:70,phy:70,rarity:3},
-
-/* ===== ブンデス ===== */
-
-{name:"Emre Can",club:"Dortmund",nation:"🇩🇪",pos:"DMF",ovr:83,spd:75,sht:78,pas:80,dri:78,def:82,phy:85,rarity:3},
-{name:"Mats Hummels",club:"Dortmund",nation:"🇩🇪",pos:"CB",ovr:84,spd:65,sht:65,pas:80,dri:70,def:88,phy:82,rarity:4},
-
-{name:"Benjamin Henrichs",club:"Leipzig",nation:"🇩🇪",pos:"RB",ovr:82,spd:82,sht:70,pas:75,dri:78,def:80,phy:78,rarity:3},
-
-/* ===== フランス・その他 ===== */
-
-{name:"Wissam Ben Yedder",club:"Monaco",nation:"🇫🇷",pos:"ST",ovr:84,spd:82,sht:85,pas:78,dri:85,def:45,phy:70,rarity:4},
-
-{name:"Alexandre Lacazette",club:"Lyon",nation:"🇫🇷",pos:"ST",ovr:83,spd:75,sht:85,pas:78,dri:82,def:45,phy:78,rarity:3},
-
-{name:"Rayan Cherki",club:"Lyon",nation:"🇫🇷",pos:"AMF",ovr:82,spd:85,sht:78,pas:82,dri:90,def:50,phy:65,rarity:3},
-
-/* ===== GK最終強化 ===== */
-
-{name:"Andre Onana",club:"Man United",nation:"🇨🇲",pos:"GK",ovr:85,spd:65,sht:40,pas:85,dri:70,def:85,phy:80,rarity:4},
-
-{name:"David de Gea",club:"Free Agent",nation:"🇪🇸",pos:"GK",ovr:86,spd:60,sht:40,pas:75,dri:60,def:88,phy:80,rarity:4},
-
-{name:"Keylor Navas",club:"Nottingham Forest",nation:"🇨🇷",pos:"GK",ovr:85,spd:60,sht:40,pas:75,dri:60,def:88,phy:78,rarity:4}
-
-);
-
-/* ===== ガチャ ===== */
-
-function draw(n){
-
-let html=""
-
-for(let i=0;i<n;i++){
-
-let p=players[Math.floor(Math.random()*players.length)]
-
-html+=card(p)
-
-save(p)
-
+/* ===== 選手データ（整理済み） ===== */
+const players = [
+    /* ★5 */
+    {name:"Lionel Messi",club:"Inter Miami",nation:"🇦🇷",pos:"RW",ovr:95,spd:85,sht:92,pas:95,dri:97,def:38,phy:65,rarity:5},
+    {name:"Cristiano Ronaldo",club:"Al Nassr",nation:"🇵🇹",pos:"ST",ovr:94,spd:83,sht:94,pas:80,dri:88,def:35,phy:78,rarity:5},
+    {name:"Kylian Mbappé",club:"Real Madrid",nation:"🇫🇷",pos:"ST",ovr:93,spd:97,sht:90,pas:80,dri:92,def:36,phy:76,rarity:5},
+    {name:"Erling Haaland",club:"Man City",nation:"🇳🇴",pos:"ST",ovr:92,spd:89,sht:96,pas:75,dri:85,def:45,phy:90,rarity:5},
+    {name:"Kevin De Bruyne",club:"Man City",nation:"🇧🇪",pos:"AMF",ovr:91,spd:75,sht:86,pas:94,dri:88,def:60,phy:78,rarity:5},
+    {name:"Jude Bellingham",club:"Real Madrid",nation:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",pos:"CMF",ovr:91,spd:80,sht:85,pas:87,dri:88,def:78,phy:85,rarity:5},
+    {name:"Vinicius Jr",club:"Real Madrid",nation:"🇧🇷",pos:"LW",ovr:90,spd:95,sht:85,pas:80,dri:94,def:40,phy:70,rarity:5},
+    {name:"Harry Kane",club:"Bayern",nation:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",pos:"ST",ovr:91,spd:75,sht:92,pas:83,dri:82,def:50,phy:85,rarity:5},
+    {name:"Robert Lewandowski",club:"Barcelona",nation:"🇵🇱",pos:"ST",ovr:91,spd:78,sht:93,pas:80,dri:85,def:45,phy:84,rarity:5},
+    {name:"Mohamed Salah",club:"Liverpool",nation:"🇪🇬",pos:"RW",ovr:90,spd:92,sht:88,pas:82,dri:90,def:50,phy:75,rarity:5},
+    {name:"Thibaut Courtois",club:"Real Madrid",nation:"🇧🇪",pos:"GK",ovr:90,spd:60,sht:40,pas:75,dri:60,def:92,phy:88,rarity:5},
+    
+    /* ★4 */
+    {name:"Bukayo Saka",club:"Arsenal",nation:"🏴󠁧󠁢󠁥󠁮󠁧󠁿",pos:"RW",ovr:88,spd:88,sht:83,pas:82,dri:90,def:60,phy:70,rarity:4},
+    {name:"Son Heung-min",club:"Tottenham",nation:"🇰🇷",pos:"LW",ovr:89,spd:90,sht:88,pas:80,dri:85,def:50,phy:75,rarity:4},
+    {name:"Federico Valverde",club:"Real Madrid",nation:"🇺🇾",pos:"CMF",ovr:88,spd:85,sht:85,pas:82,dri:85,def:80,phy:88,rarity:4},
+    {name:"Martin Ødegaard",club:"Arsenal",nation:"🇳🇴",pos:"AMF",ovr:87,spd:78,sht:80,pas:88,dri:87,def:65,phy:68,rarity:4},
+    {name:"Virgil van Dijk",club:"Liverpool",nation:"🇳🇱",pos:"CB",ovr:89,spd:78,sht:60,pas:75,dri:70,def:92,phy:90,rarity:4},
+    {name:"Rodri",club:"Man City",nation:"🇪🇸",pos:"DMF",ovr:89,spd:70,sht:80,pas:88,dri:82,def:90,phy:88,rarity:4},
+
+    /* ★3 */
+    {name:"Kaoru Mitoma",club:"Brighton",nation:"🇯🇵",pos:"LW",ovr:82,spd:90,sht:75,pas:78,dri:88,def:50,phy:65,rarity:3},
+    {name:"Takefusa Kubo",club:"Sociedad",nation:"🇯🇵",pos:"RW",ovr:82,spd:85,sht:78,pas:80,dri:88,def:55,phy:60,rarity:3},
+    {name:"Wataru Endo",club:"Liverpool",nation:"🇯🇵",pos:"DMF",ovr:80,spd:70,sht:65,pas:75,dri:70,def:85,phy:82,rarity:3},
+    {name:"Richarlison",club:"Tottenham",nation:"🇧🇷",pos:"ST",ovr:83,spd:85,sht:82,pas:70,dri:82,def:50,phy:80,rarity:3}
+];
+
+/* ===== ガチャロジック ===== */
+function draw(n) {
+    const resultDiv = document.getElementById("result");
+    resultDiv.innerHTML = ""; // 画面を一度クリア
+
+    for (let i = 0; i < n; i++) {
+        const p = players[Math.floor(Math.random() * players.length)];
+        resultDiv.innerHTML += createCardHTML(p);
+        saveToCollection(p.name);
+    }
 }
 
-document.getElementById("result").innerHTML=html
-
+function createCardHTML(p) {
+    return `
+        <div class="card star${p.rarity}">
+            <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}&background=random&color=fff">
+            <div class="ovr">${p.ovr}</div>
+            <h3>${p.name}</h3>
+            <div class="info">${p.nation} ${p.club} | ${p.pos}</div>
+            <div class="stats-grid">
+                <div class="stat-item">SPD: ${p.spd}</div>
+                <div class="stat-item">SHT: ${p.sht}</div>
+                <div class="stat-item">PAS: ${p.pas}</div>
+                <div class="stat-item">DRI: ${p.dri}</div>
+                <div class="stat-item">DEF: ${p.def}</div>
+                <div class="stat-item">PHY: ${p.phy}</div>
+            </div>
+        </div>
+    `;
 }
 
-/* ===== カード ===== */
+/* ===== 保存・コレクション ===== */
+// Setを使って重複を防ぐ
+let col = new Set(JSON.parse(localStorage.getItem("football_col")) || []);
 
-function card(p){
-
-return `
-
-<div class="card star${p.rarity}">
-
-<img src="https://ui-avatars.com/api/?name=${p.name}">
-
-<h3>${p.name}</h3>
-<p>${p.nation} ${p.club}</p>
-
-<p>OVR ${p.ovr}</p>
-
-<div class="stat">SPD ${p.spd} | SHT ${p.sht}</div>
-<div class="stat">PAS ${p.pas} | DRI ${p.dri}</div>
-<div class="stat">DEF ${p.def} | PHY ${p.phy}</div>
-
-</div>
-
-`
-
+function saveToCollection(name) {
+    col.add(name);
+    localStorage.setItem("football_col", JSON.stringify(Array.from(col)));
+    renderCollection();
 }
 
-/* ===== 保存 ===== */
-
-let col=JSON.parse(localStorage.getItem("col"))||[]
-
-function save(p){
-
-col.push(p.name)
-
-localStorage.setItem("col",JSON.stringify(col))
-
-render()
-
+function renderCollection() {
+    const c = document.getElementById("collection");
+    c.innerHTML = "";
+    // アルファベット順に並び替えて表示
+    Array.from(col).sort().forEach(n => {
+        c.innerHTML += `<div class="item">${n}</div>`;
+    });
 }
 
-function render(){
-
-let c=document.getElementById("collection")
-
-c.innerHTML=""
-
-col.forEach(n=>{
-
-c.innerHTML+=`<div class="item">${n}</div>`
-
-})
-
-}
-
-render()
-
+// 起動時にコレクションを表示
+renderCollection();
 </script>
 
 </body>
